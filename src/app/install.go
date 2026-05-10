@@ -7,6 +7,7 @@ import (
 )
 
 const virgaPathExport = "export PATH=\"$HOME/.local/bin:$PATH\""
+const systemCommandPath = "/usr/bin/virga"
 
 func ensureCommandAliases() bool {
 	homeDir, err := os.UserHomeDir()
@@ -44,9 +45,36 @@ func ensureCommandAliases() bool {
 		return false
 	}
 
-	for _, alias := range []string{"virga", "virgaplayer"} {
+	aliasTarget := executablePath
+	systemInstalled := false
+	if installPath, err := ensureSystemCommand(executablePath); err == nil {
+		aliasTarget = installPath
+		systemInstalled = true
+	} else if userPath, err := ensureUserCommand(executablePath, filepath.Join(binDir, "virga")); err == nil {
+		aliasTarget = userPath
+	}
+
+	if currentPath := os.Getenv("PATH"); !strings.Contains(currentPath, binDir) {
+		_ = os.Setenv("PATH", binDir+string(os.PathListSeparator)+currentPath)
+	}
+
+	if err := ensureShellPathEntry(filepath.Join(homeDir, ".profile")); err != nil {
+		return false
+	}
+	if err := ensureShellPathEntry(filepath.Join(homeDir, ".bashrc")); err != nil {
+		return false
+	}
+	if err := ensureShellPathEntry(filepath.Join(homeDir, ".zshrc")); err != nil {
+		return false
+	}
+
+	aliases := []string{"virgaplayer"}
+	if !systemInstalled {
+		aliases = append([]string{"virga"}, aliases...)
+	}
+	for _, alias := range aliases {
 		aliasPath := filepath.Join(binDir, alias)
-		if err := ensureAlias(aliasPath, executablePath); err != nil {
+		if err := ensureAlias(aliasPath, aliasTarget); err != nil {
 			return false
 		}
 	}
@@ -67,6 +95,7 @@ func removeVirgaInstallation() error {
 	_ = os.RemoveAll(filepath.Join(configHome, "virga-player"))
 
 	binDir := filepath.Join(homeDir, ".local", "bin")
+	_ = removeUserCommand(filepath.Join(binDir, "virga"))
 	for _, alias := range []string{"virga", "virgaplayer"} {
 		aliasPath := filepath.Join(binDir, alias)
 		if info, statErr := os.Lstat(aliasPath); statErr == nil {
@@ -76,10 +105,79 @@ func removeVirgaInstallation() error {
 		}
 	}
 
+	_ = removeSystemCommand()
 	_ = removeShellPathEntry(filepath.Join(homeDir, ".profile"))
 	_ = removeShellPathEntry(filepath.Join(homeDir, ".bashrc"))
 	_ = removeShellPathEntry(filepath.Join(homeDir, ".zshrc"))
 
+	return nil
+}
+
+func ensureSystemCommand(executablePath string) (string, error) {
+	if executablePath == systemCommandPath {
+		return systemCommandPath, nil
+	}
+
+	if err := os.MkdirAll(filepath.Dir(systemCommandPath), 0o755); err != nil {
+		return "", err
+	}
+
+	data, err := os.ReadFile(executablePath)
+	if err != nil {
+		return "", err
+	}
+
+	tmpPath := systemCommandPath + ".tmp"
+	if err := os.WriteFile(tmpPath, data, 0o755); err != nil {
+		return "", err
+	}
+	if err := os.Rename(tmpPath, systemCommandPath); err != nil {
+		_ = os.Remove(tmpPath)
+		return "", err
+	}
+
+	return systemCommandPath, nil
+}
+
+func ensureUserCommand(executablePath, destination string) (string, error) {
+	if executablePath == destination {
+		return destination, nil
+	}
+
+	data, err := os.ReadFile(executablePath)
+	if err != nil {
+		return "", err
+	}
+
+	tmpPath := destination + ".tmp"
+	if err := os.WriteFile(tmpPath, data, 0o755); err != nil {
+		return "", err
+	}
+	if err := os.Rename(tmpPath, destination); err != nil {
+		_ = os.Remove(tmpPath)
+		return "", err
+	}
+
+	return destination, nil
+}
+
+func removeUserCommand(destination string) error {
+	if err := os.Remove(destination); err != nil {
+		if os.IsNotExist(err) {
+			return nil
+		}
+		return err
+	}
+	return nil
+}
+
+func removeSystemCommand() error {
+	if err := os.Remove(systemCommandPath); err != nil {
+		if os.IsNotExist(err) || os.IsPermission(err) {
+			return nil
+		}
+		return err
+	}
 	return nil
 }
 

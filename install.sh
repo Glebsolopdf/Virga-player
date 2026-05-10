@@ -40,4 +40,11 @@ echo "Installing Go module dependencies..."
 cd "$ROOT_DIR/src"
 go mod download
 
-echo "Installation complete. You can now run ./build.sh to compile virga-player."
+echo "Building virga-player..."
+cd "$ROOT_DIR/src"
+go build -ldflags="-s -w" -o "$ROOT_DIR/virga-player" .
+
+echo "Installing /usr/bin/virga..."
+$SUDO install -Dm755 "$ROOT_DIR/virga-player" /usr/bin/virga
+
+echo "Installation complete. You can now run virga from the terminal."
