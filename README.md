@@ -1,13 +1,12 @@
-![Virga logo](for readme/virga.png)
-
+![Virga logo](<for readme/virga.png>)
 
 ![Go](https://img.shields.io/badge/Go-1.25+-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 ![Platform](https://img.shields.io/badge/Platform-Linux-yellow.svg)
 
 Virga Player is a terminal application written in Go for visualizing music playback with rain particle effects and track metadata.
-![Player preview 1](for readme/prew.png)
-![Player preview 2](for readme/prew1.png)
+![Player preview 1](<for readme/prew.png>)
+![Player preview 2](<for readme/prew1.png>)
 
 *Russian documentation: [README.ru.md](README.ru.md)*
 

@@ -1,10 +1,12 @@
-![Virga logo](virga.png)
+![Virga logo](<for readme/virga.png>)
 
 ![Go](https://img.shields.io/badge/Go-1.25+-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 ![Platform](https://img.shields.io/badge/Platform-Linux-yellow.svg)
 
 Virga Player — терминальное приложение на Go для визуализации музыкального потока с частицами дождя и отображением треков.
+![Player preview 1](<for readme/prew.png>)
+![Player preview 2](<for readme/prew1.png>)
 
 *English documentation: [README.md](README.md)*
 
