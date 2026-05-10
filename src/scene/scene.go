@@ -4,7 +4,6 @@ import (
 	"github.com/gdamore/tcell/v2"
 )
 
-// Building represents a single building
 type Building struct {
 	X      int
 	Y      int
@@ -12,7 +11,6 @@ type Building struct {
 	Height int
 }
 
-// Scene represents the city background scene
 type Scene struct {
 	width     int
 	height    int
@@ -20,13 +18,11 @@ type Scene struct {
 	lamps     []Lamp
 }
 
-// Lamp represents a street lamp
 type Lamp struct {
 	X int
 	Y int
 }
 
-// NewScene creates a new city scene
 func NewScene(width, height int) *Scene {
 	s := &Scene{
 		width:  width,
@@ -37,7 +33,6 @@ func NewScene(width, height int) *Scene {
 	return s
 }
 
-// generateBuildings creates procedural buildings
 func (s *Scene) generateBuildings() {
 	s.buildings = []Building{}
 	buildingWidth := 12
@@ -45,7 +40,7 @@ func (s *Scene) generateBuildings() {
 	x := 0
 
 	for x < s.width {
-		height := 5 + int(x%3)*2 // Vary building heights
+		height := 5 + int(x%3)*2
 		y := s.height - height - 1
 		s.buildings = append(s.buildings, Building{
 			X:      x,
@@ -56,8 +51,6 @@ func (s *Scene) generateBuildings() {
 		x += buildingWidth + spacing
 	}
 }
-
-// generateLamps creates street lamps
 func (s *Scene) generateLamps() {
 	s.lamps = []Lamp{}
 	spacing := 20
@@ -68,29 +61,23 @@ func (s *Scene) generateLamps() {
 	}
 }
 
-// Draw renders the scene
 func (s *Scene) Draw(screen tcell.Screen) {
-	// Draw buildings
 	for _, building := range s.buildings {
 		s.drawBuilding(screen, building)
 	}
 
-	// Draw street
 	for x := 0; x < s.width; x++ {
 		screen.SetContent(x, s.height-1, '─', nil, tcell.StyleDefault.
 			Foreground(tcell.ColorGray).
 			Background(tcell.ColorBlack))
 	}
 
-	// Draw lamps
 	for _, lamp := range s.lamps {
 		s.drawLamp(screen, lamp)
 	}
 }
 
-// drawBuilding renders a single building with windows
 func (s *Scene) drawBuilding(screen tcell.Screen, b Building) {
-	// Building outline
 	for y := b.Y; y < b.Y+b.Height; y++ {
 		for x := b.X; x < b.X+b.Width; x++ {
 			if y == b.Y || y == b.Y+b.Height-1 {
@@ -108,10 +95,8 @@ func (s *Scene) drawBuilding(screen tcell.Screen, b Building) {
 		}
 	}
 
-	// Draw windows (darker, further away effect)
 	for y := b.Y + 1; y < b.Y+b.Height-1; y += 2 {
 		for x := b.X + 2; x < b.X+b.Width-1; x += 3 {
-			// Window with lights (30% lit, mostly dark)
 			if (x+y)%3 == 0 {
 				screen.SetContent(x, y, '█', nil, tcell.StyleDefault.
 					Foreground(tcell.ColorMaroon).
@@ -125,9 +110,8 @@ func (s *Scene) drawBuilding(screen tcell.Screen, b Building) {
 	}
 }
 
-// drawLamp renders a street lamp (dimmer for background)
 func (s *Scene) drawLamp(screen tcell.Screen, l Lamp) {
-	// Pole
+
 	screen.SetContent(l.X, l.Y-2, '│', nil, tcell.StyleDefault.
 		Foreground(tcell.ColorGray).
 		Background(tcell.ColorBlack))
@@ -135,12 +119,10 @@ func (s *Scene) drawLamp(screen tcell.Screen, l Lamp) {
 		Foreground(tcell.ColorGray).
 		Background(tcell.ColorBlack))
 
-	// Lamp head (dimmer - orange instead of bright yellow)
 	screen.SetContent(l.X, l.Y-3, '◆', nil, tcell.StyleDefault.
 		Foreground(tcell.ColorMaroon).
 		Background(tcell.ColorBlack))
 
-	// Light halo (very dim)
 	if l.X-1 >= 0 {
 		screen.SetContent(l.X-1, l.Y-3, '·', nil, tcell.StyleDefault.
 			Foreground(tcell.ColorGray).
@@ -153,7 +135,6 @@ func (s *Scene) drawLamp(screen tcell.Screen, l Lamp) {
 	}
 }
 
-// Resize adjusts the scene for new dimensions
 func (s *Scene) Resize(width, height int) {
 	s.width = width
 	s.height = height

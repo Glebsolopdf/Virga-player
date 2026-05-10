@@ -10,8 +10,8 @@ type Player struct {
 	Title            string
 	Artist           string
 	Album            string
-	Duration         int // в секундах (для таймлайна)
-	Elapsed          int // в секундах (для таймлайна)
+	Duration         int
+	Elapsed          int
 	CoverX           int
 	CoverY           int
 	CoverW           int
@@ -21,7 +21,7 @@ type Player struct {
 	Hidden           map[int]bool
 	HitTimes         map[int]time.Time
 	RecoveryDuration time.Duration
-	Artwork          *artwork.Artwork // Новая система для отображения
+	Artwork          *artwork.Artwork
 	ArtworkPath      string
 }
 
@@ -56,7 +56,7 @@ func New(centerX, centerY int) *Player {
 	}
 }
 
-// SetTrackInfo обновляет информацию о треке
+// SetTrackInfo
 func (p *Player) SetTrackInfo(title, artist, album string, durationStr, elapsedStr string, durationSec, elapsedSec int) {
 	p.Title = title
 	p.Artist = artist
@@ -70,7 +70,7 @@ func (p *Player) SetTrackInfo(title, artist, album string, durationStr, elapsedS
 	}
 }
 
-// SetTrackInfoWithArtwork обновляет информацию о треке и обложку
+// SetTrackInfoWithArtwork
 func (p *Player) SetTrackInfoWithArtwork(title, artist, album string, durationStr, elapsedStr string, durationSec, elapsedSec int, artworkPath string) {
 	trackChanged := title != p.Title || artist != p.Artist || album != p.Album
 	p.SetTrackInfo(title, artist, album, durationStr, elapsedStr, durationSec, elapsedSec)
@@ -78,20 +78,24 @@ func (p *Player) SetTrackInfoWithArtwork(title, artist, album string, durationSt
 		p.Elapsed = 0
 	}
 
-	// Если новый трек не прислал обложку, оставляем предыдущую.
 	if p.Artwork == nil {
 		p.ArtworkPath = artworkPath
 		p.Artwork = artwork.NewArtwork(artworkPath, title, artist, album, durationSec, elapsedSec)
 		return
 	}
 
-	if artworkPath != "" && p.ArtworkPath != artworkPath {
+	if trackChanged && artworkPath == "" {
+		p.ArtworkPath = ""
+		p.Artwork = artwork.NewArtwork("", title, artist, album, durationSec, elapsedSec)
+		return
+	}
+
+	if artworkPath != "" && (p.ArtworkPath != artworkPath || trackChanged) {
 		p.ArtworkPath = artworkPath
 		p.Artwork = artwork.NewArtwork(artworkPath, title, artist, album, durationSec, elapsedSec)
 		return
 	}
 
-	// Если трек поменялся, но новая обложка отсутствует — обновляем данные текста на старой обложке.
 	if p.Artwork != nil {
 		p.Artwork.UpdateTrackInfo(title, artist, album, durationSec, p.Elapsed)
 	}
@@ -107,7 +111,6 @@ func (p *Player) UpdatePosition(width, height int) {
 }
 
 func (p *Player) GetHitAreas() []HitArea {
-	// Формируем строку времени для расчёта ширины
 	timeStr := fmt.Sprintf("%d:%02d / %d:%02d", p.Elapsed/60, p.Elapsed%60, p.Duration/60, p.Duration%60)
 
 	areas := []HitArea{
@@ -162,10 +165,8 @@ func (p *Player) IsHidden(field string, x, y int) bool {
 		return false
 	}
 
-	// Check if it's time to recover
 	if hitTime, ok := p.HitTimes[key]; ok {
 		if time.Since(hitTime) > p.RecoveryDuration {
-			// Time to recover this pixel
 			delete(p.Hidden, key)
 			delete(p.HitTimes, key)
 			return false

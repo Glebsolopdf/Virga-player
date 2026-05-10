@@ -36,10 +36,12 @@ func (a *Artwork) renderSixel(screen tcell.Screen) {
 	if imgX < 0 {
 		imgX = 0
 	}
+	if imgY < 0 {
+		imgY = 0
+	}
 
 	fmt.Printf("\x1B[%d;%dH", imgY+1, imgX+1)
 	os.Stdout.Write(a.SixelData)
-	fmt.Print("\r\n\r\n")
 
 	a.drawText(screen, centerX-len(a.Title)/2, centerY+3, a.Title, theme.TrackTitle)
 	a.drawText(screen, centerX-len(a.Artist)/2, centerY+5, a.Artist, theme.TrackArtist)

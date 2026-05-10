@@ -12,8 +12,8 @@ import (
 
 const (
 	sampleRate      = 11025
-	readChunkBytes  = 256 // 11ms per read — minimal OS latency
-	analysisWinSize = 512 // ~46ms window — snappy Goertzel, enough for 60Hz+
+	readChunkBytes  = 256
+	analysisWinSize = 512
 	minNormEnvelope = 0.003
 	envSensitivity  = 28.0
 )
@@ -22,7 +22,7 @@ type Bands struct {
 	Low      float64
 	Mid      float64
 	High     float64
-	Envelope float64 // overall loudness, 0..1
+	Envelope float64
 }
 
 type Analyzer struct {
@@ -48,7 +48,7 @@ func NewAnalyzer() (*Analyzer, error) {
 		"--format=s16le",
 		"--rate", "11025",
 		"--channels", "1",
-		"--latency-msec", "10", // minimal PulseAudio-side buffer
+		"--latency-msec", "10",
 		"--raw",
 	)
 
@@ -112,21 +112,19 @@ func (a *Analyzer) readLoop(r io.Reader) {
 		low := bandEnergy(win, []float64{60, 80, 120, 180})
 		mid := bandEnergy(win, []float64{500, 800, 1300, 2000})
 		high := bandEnergy(win, []float64{2800, 3600, 4400, 5000})
-		env := rms(chunk) // RMS of the freshest chunk for instant silence detection
+		env := rms(chunk)
 
-		// Absolute energy per band. Values in 0..1.
 		normEnv := clamp((env-minNormEnvelope)*envSensitivity, 0, 1)
 		nLow := clamp(math.Sqrt(low)*envSensitivity*0.6, 0, 1)
 		nMid := clamp(math.Sqrt(mid)*envSensitivity*0.6, 0, 1)
 		nHigh := clamp(math.Sqrt(high)*envSensitivity*0.6, 0, 1)
 
 		a.mu.Lock()
-		// Instantaneous attack, fast release.
 		step := func(prev, next float64) float64 {
 			if next > prev {
-				return next // zero-latency rise
+				return next
 			}
-			return smooth(prev, next, 0.40) // fast decay — ~3 frames to half-value
+			return smooth(prev, next, 0.40)
 		}
 		a.envelope = step(a.envelope, normEnv)
 		a.bands.Low = step(a.bands.Low, nLow)

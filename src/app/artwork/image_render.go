@@ -3,11 +3,12 @@ package artwork
 import (
 	"image"
 	"image/color"
+	"virga-player/settings"
 
 	"github.com/gdamore/tcell/v2"
 )
 
-// drawImageInBox рисует обложку внутри бокса.
+// drawImageInBox
 func (a *Artwork) drawImageInBox(screen tcell.Screen, x, y, w, h int) {
 	if a.CoverImg == nil {
 		return
@@ -20,6 +21,9 @@ func (a *Artwork) drawImageInBox(screen tcell.Screen, x, y, w, h int) {
 	if srcW <= 0 || srcH <= 0 || w <= 0 || h <= 0 {
 		return
 	}
+	theme := settings.CurrentTheme()
+	bgR, bgG, bgB := theme.Background.RGB()
+	bg := color.NRGBA{R: uint8(bgR), G: uint8(bgG), B: uint8(bgB), A: 255}
 
 	cropSize := srcW
 	if srcH < cropSize {
@@ -54,19 +58,21 @@ func (a *Artwork) drawImageInBox(screen tcell.Screen, x, y, w, h int) {
 				continue
 			}
 
-			topColor := rgbaToTcell(sampleCenterColor(a.CoverImg, srcX0, topSrcY0, srcX1, topSrcY1), a.Fade, a.Pulse)
-			botColor := rgbaToTcell(sampleCenterColor(a.CoverImg, srcX0, botSrcY0, srcX1, botSrcY1), a.Fade, a.Pulse)
+			topColor := rgbaToTcell(sampleCenterColor(a.CoverImg, srcX0, topSrcY0, srcX1, topSrcY1), bg, a.Fade, a.Pulse)
+			botColor := rgbaToTcell(sampleCenterColor(a.CoverImg, srcX0, botSrcY0, srcX1, botSrcY1), bg, a.Fade, a.Pulse)
 			style := tcell.StyleDefault.Foreground(topColor).Background(botColor)
 			screen.SetContent(xPos, yPos, '▀', nil, style)
 		}
 	}
 }
 
-func rgbaToTcell(c color.Color, fade, pulse float64) tcell.Color {
-	r, g, b, _ := c.RGBA()
-	rf := float64(r>>8) / 255.0
-	gf := float64(g>>8) / 255.0
-	bf := float64(b>>8) / 255.0
+func rgbaToTcell(c color.Color, background color.NRGBA, fade, pulse float64) tcell.Color {
+	src := color.NRGBAModel.Convert(c).(color.NRGBA)
+	alpha := float64(src.A) / 255.0
+
+	rf := (float64(src.R)*alpha + float64(background.R)*(1-alpha)) / 255.0
+	gf := (float64(src.G)*alpha + float64(background.G)*(1-alpha)) / 255.0
+	bf := (float64(src.B)*alpha + float64(background.B)*(1-alpha)) / 255.0
 
 	if fade < 0 {
 		fade = 0

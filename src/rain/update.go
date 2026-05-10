@@ -24,14 +24,11 @@ func (ps *ParticleSystem) Update(dt float64) {
 		return
 	}
 
-	// Apply spectrum-driven multipliers every frame.
 	if ps.musicOn {
 		if ps.silenced {
-			// No new drops, but existing ones keep falling at base speed.
 			ps.speedMul = ps.baseSpeed
 			ps.spawnMul = 0
 		} else {
-			// energyMul already set by ApplySpectrum — direct mapping, no phases.
 			ps.speedMul = ps.baseSpeed * ps.energyMul
 		}
 	}

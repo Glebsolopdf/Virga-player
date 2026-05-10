@@ -6,7 +6,7 @@ import (
 	"github.com/gdamore/tcell/v2"
 )
 
-// renderTextOnly выводит текстовый интерфейс с обложкой слева.
+// renderTextOnly
 func (a *Artwork) renderTextOnly(screen tcell.Screen) {
 	theme := settings.CurrentTheme()
 	w, h := screen.Size()
@@ -17,12 +17,43 @@ func (a *Artwork) renderTextOnly(screen tcell.Screen) {
 	hasCover := a.CoverImg != nil
 	infoGap := 4
 	infoW := 34
+	if w >= 100 {
+		infoW = 28
+	}
+	if w >= 120 {
+		infoW = 24
+	}
+	if w >= 150 {
+		infoW = 20
+	}
 
-	// Обложка фиксированного размера для стабильности.
-	coverInnerH := 10
+	coverInnerH := 12
 	coverInnerW := coverInnerH * 2
+	if a.CoverImg != nil {
+		imgBounds := a.CoverImg.Bounds()
+		if imgBounds.Dx() > 0 && imgBounds.Dy() > 0 {
+			coverInnerH = imgBounds.Dy() / 2
+			if coverInnerH < 12 {
+				coverInnerH = 12
+			}
+			coverInnerW = imgBounds.Dx() / 2
+			if coverInnerW < coverInnerH*2 {
+				coverInnerW = coverInnerH * 2
+			}
+		}
+	}
+
 	maxCoverByWidth := w - infoW - infoGap - 4
 	maxCoverByHeight := h - 4
+
+	if coverInnerW > maxCoverByWidth {
+		coverInnerW = maxCoverByWidth
+		coverInnerH = coverInnerW / 2
+	}
+	if coverInnerH > maxCoverByHeight {
+		coverInnerH = maxCoverByHeight
+		coverInnerW = coverInnerH * 2
+	}
 
 	boxW := coverInnerW + 2
 	boxH := coverInnerH + 2

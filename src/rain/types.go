@@ -6,22 +6,20 @@ import (
 	"virga-player/settings"
 )
 
-// Particle represents a single raindrop
 type Particle struct {
 	X            float64
 	Y            float64
-	VelX         float64 // Horizontal velocity
-	VelY         float64 // Current vertical velocity
-	TargetVelY   float64 // Final vertical velocity after delay
+	VelX         float64
+	VelY         float64
+	TargetVelY   float64
 	Length       int
 	TargetLength int
 	Age          float64
 	GrowTime     float64
 	Delay        float64
-	Opacity      int // 0-3 for fade effect
+	Opacity      int
 }
 
-// ParticleSystem manages all raindrops
 type ParticleSystem struct {
 	particles   []Particle
 	width       int
@@ -38,13 +36,12 @@ type ParticleSystem struct {
 	intensity   float64
 	enabled     bool
 
-	// bass-reactive state
-	bassPhase   int     // 0=normal 1=freeze 2=burst
-	bassTimer   float64 // seconds remaining in current phase
-	prevLow     float64 // last low-band value (for transient delta)
-	energyMul   float64 // base multiplier from energy (used in Update)
-	silenced    bool    // true when no music is playing
-	spawnPaused bool    // true when automatic rain spawn is temporarily disabled
+	bassPhase   int
+	bassTimer   float64
+	prevLow     float64
+	energyMul   float64
+	silenced    bool
+	spawnPaused bool
 }
 
 // NewParticleSystem creates a new particle system

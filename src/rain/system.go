@@ -61,25 +61,17 @@ func (ps *ParticleSystem) ApplySpectrum(low, mid, high, envelope float64) {
 		return
 	}
 
-	// Silence: envelope below noise floor → stop rain completely.
 	const silenceThreshold = 0.06
 	if envelope < silenceThreshold {
 		ps.silenced = true
 		ps.spawnMul = 0
-		// speedMul stays — existing drops continue falling.
 		return
 	}
 	ps.silenced = false
 
-	// Direct per-band energy mapping — no state machine.
-	// Low+mid drive speed (bass and body = flow intensity).
-	// High+mid drive spawn rate (cymbals/hi-hats = drops appearing).
 	speedEnergy := clamp(low*0.55+mid*0.35+high*0.10, 0, 1)
 	spawnEnergy := clamp(high*0.50+mid*0.35+low*0.15, 0, 1)
-
-	// energyMul: 0.05 (near-silent) → 4.5 (full drop). Intensity scales the ceiling.
 	ps.energyMul = clamp(speedEnergy*4.5*ps.intensity, 0.05, 4.5)
-	// spawnMul: scales spawn rate; highs spike it during percussion hits.
 	ps.spawnMul = clamp(spawnEnergy*6.0*ps.intensity, 0.05, 6.0)
 }
 

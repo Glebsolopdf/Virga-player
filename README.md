@@ -1,10 +1,13 @@
-![Virga logo](virga.png)
+![Virga logo](for readme/virga.png)
+
 
 ![Go](https://img.shields.io/badge/Go-1.25+-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 ![Platform](https://img.shields.io/badge/Platform-Linux-yellow.svg)
 
 Virga Player is a terminal application written in Go for visualizing music playback with rain particle effects and track metadata.
+![Player preview 1](for readme/prew.png)
+![Player preview 2](for readme/prew1.png)
 
 *Russian documentation: [README.ru.md](README.ru.md)*
 
@@ -13,7 +16,7 @@ Virga Player is a terminal application written in Go for visualizing music playb
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                      Main application                           │
-│                        (app/app.go)                             │
+│                          (app/app.go)                          │
 └───────────────────────────┬─────────────────────────────────────┘
                             │
         ┌───────────────────┼───────────────────┐
@@ -22,7 +25,7 @@ Virga Player is a terminal application written in Go for visualizing music playb
 ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
 │ Terminal     │    │ Event        │    │ Settings     │
 │ rendering    │    │ handler      │    │ manager      │
-│ (renderer/)  │    │(app/interact)│    │ (settings/)  │
+│ (renderer/)  │    │ (app/interact)│    │ (settings/)  │
 └──────────────┘    └──────────────┘    └──────────────┘
         │                   │                   │
         └───────────────────┼───────────────────┘
@@ -36,20 +39,20 @@ Virga Player is a terminal application written in Go for visualizing music playb
 │ (animation/) │    │ (rain/)        │    │ • frequency bands   │
 │              │    │                │    │ • envelope tracking │
 │• FPS control │    │ • physics      │    │ • audio capture     │
-│• timing      │    │ • music-reactive│   │ (audio/analyzer.go) │
-│• main loop   │    │ • rendering    │    │                     │
+│• timing      │    │ • music-reactive│   │ (audio/analyzer.go)  │
+│• main loop  │    │ • rendering    │    │                     │
 └──────────────┘    └────────────────┘    └─────────────────────┘
                             │
         ┌───────────────────┼───────────────────┐
         │                   │                   │
         ▼                   ▼                   ▼
 ┌──────────────┐    ┌────────────────┐    ┌──────────────┐
-│ Music data   │    │ Artwork        │    │ Scene        │
-│              │    │ display        │    │ rendering    │
-│ • Playerctl  │    │ • Sixel (PNG)  │    │ • background │
-│ • JSON file   │    │ • text mode    │    │ • buildings  │
-│ • fallback   │    │ • animations   │    │ • UI elements│
-│ (music/)     │    │ (artwork/)     │    │ (scene/)     │
+│ Music data   │    │ Artwork        │    │ Scene         │
+│              │    │ display        │    │ rendering     │
+│ • Playerctl  │    │ • Sixel (PNG)  │    │ • background  │
+│ • JSON file  │    │ • text mode    │    │ • buildings   │
+│ • fallback   │    │ • animations   │    │ • UI elements │
+│ (music/)     │    │ (artwork/)     │    │ (scene/)      │
 └──────────────┘    └────────────────┘    └──────────────┘
 ```
 

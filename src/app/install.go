@@ -2,6 +2,7 @@ package app
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -38,6 +39,12 @@ func ensureCommandAliases() bool {
 	if err := ensureShellPathEntry(filepath.Join(homeDir, ".profile")); err != nil {
 		return false
 	}
+	if err := ensureShellPathEntry(filepath.Join(homeDir, ".bash_profile")); err != nil {
+		return false
+	}
+	if err := ensureShellPathEntry(filepath.Join(homeDir, ".bash_login")); err != nil {
+		return false
+	}
 	if err := ensureShellPathEntry(filepath.Join(homeDir, ".bashrc")); err != nil {
 		return false
 	}
@@ -50,6 +57,7 @@ func ensureCommandAliases() bool {
 	if installPath, err := ensureSystemCommand(executablePath); err == nil {
 		aliasTarget = installPath
 		systemInstalled = true
+		_ = removeUserCommand(filepath.Join(binDir, "virga"))
 	} else if userPath, err := ensureUserCommand(executablePath, filepath.Join(binDir, "virga")); err == nil {
 		aliasTarget = userPath
 	}
@@ -59,6 +67,12 @@ func ensureCommandAliases() bool {
 	}
 
 	if err := ensureShellPathEntry(filepath.Join(homeDir, ".profile")); err != nil {
+		return false
+	}
+	if err := ensureShellPathEntry(filepath.Join(homeDir, ".bash_profile")); err != nil {
+		return false
+	}
+	if err := ensureShellPathEntry(filepath.Join(homeDir, ".bash_login")); err != nil {
 		return false
 	}
 	if err := ensureShellPathEntry(filepath.Join(homeDir, ".bashrc")); err != nil {
@@ -107,6 +121,8 @@ func removeVirgaInstallation() error {
 
 	_ = removeSystemCommand()
 	_ = removeShellPathEntry(filepath.Join(homeDir, ".profile"))
+	_ = removeShellPathEntry(filepath.Join(homeDir, ".bash_profile"))
+	_ = removeShellPathEntry(filepath.Join(homeDir, ".bash_login"))
 	_ = removeShellPathEntry(filepath.Join(homeDir, ".bashrc"))
 	_ = removeShellPathEntry(filepath.Join(homeDir, ".zshrc"))
 
@@ -133,6 +149,26 @@ func ensureSystemCommand(executablePath string) (string, error) {
 	}
 	if err := os.Rename(tmpPath, systemCommandPath); err != nil {
 		_ = os.Remove(tmpPath)
+		if os.IsPermission(err) {
+			return ensureSystemCommandWithSudo(executablePath)
+		}
+		return "", err
+	}
+
+	return systemCommandPath, nil
+}
+
+func ensureSystemCommandWithSudo(executablePath string) (string, error) {
+	sudoPath, err := exec.LookPath("sudo")
+	if err != nil {
+		return "", err
+	}
+
+	cmd := exec.Command(sudoPath, "install", "-Dm755", executablePath, systemCommandPath)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	if err := cmd.Run(); err != nil {
 		return "", err
 	}
 
@@ -172,13 +208,28 @@ func removeUserCommand(destination string) error {
 }
 
 func removeSystemCommand() error {
-	if err := os.Remove(systemCommandPath); err != nil {
-		if os.IsNotExist(err) || os.IsPermission(err) {
+	var err error
+	if err = os.Remove(systemCommandPath); err == nil {
+		return nil
+	} else if os.IsNotExist(err) {
+		return nil
+	} else if os.IsPermission(err) {
+		sudoPath, lookErr := exec.LookPath("sudo")
+		if lookErr != nil {
+			return err
+		}
+
+		cmd := exec.Command(sudoPath, "rm", "-f", systemCommandPath)
+		cmd.Stdin = os.Stdin
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		runErr := cmd.Run()
+		if runErr == nil {
 			return nil
 		}
-		return err
+		return runErr
 	}
-	return nil
+	return err
 }
 
 func ensureShellPathEntry(filePath string) error {

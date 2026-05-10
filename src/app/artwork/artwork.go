@@ -8,12 +8,12 @@ import (
 	"github.com/gdamore/tcell/v2"
 )
 
-// DisplayMode определяет как отображать информацию о треке
+// DisplayMode
 type DisplayMode int
 
 const (
-	DisplaySixel    DisplayMode = iota // Реальная картинка через SIXEL
-	DisplayTextOnly                    // Только текстовая информация
+	DisplaySixel DisplayMode = iota
+	DisplayTextOnly
 )
 
 // Artwork
@@ -25,15 +25,14 @@ type Artwork struct {
 	Title            string
 	Artist           string
 	Album            string
-	Duration         int // в секундах
-	Elapsed          int // в секундах
+	Duration         int
+	Elapsed          int
 	AnimationEnabled bool
 	Fade             float64
 	Pulse            float64
 	Blink            float64
 	LastEnvelope     float64
 	SixelData        []byte
-	SixelPath        string
 }
 
 // NewArtwork
@@ -56,7 +55,6 @@ func NewArtwork(imagePath, title, artist, album string, duration, elapsed int) *
 		a.computeAverageColor()
 	}
 
-	// Определяем поддержку терминала
 	if DetectSixelSupport() && imagePath != "" {
 		a.Mode = DisplaySixel
 	} else {
@@ -66,8 +64,12 @@ func NewArtwork(imagePath, title, artist, album string, duration, elapsed int) *
 	return a
 }
 
-// Render отображает обложку/информацию
 func (a *Artwork) Render(screen tcell.Screen) {
+	if a.AnimationEnabled && a.Mode == DisplaySixel {
+		a.renderTextOnly(screen)
+		return
+	}
+
 	switch a.Mode {
 	case DisplaySixel:
 		a.renderSixel(screen)
@@ -76,7 +78,6 @@ func (a *Artwork) Render(screen tcell.Screen) {
 	}
 }
 
-// SetAnimationEnabled toggles cover animation mode.
 func (a *Artwork) SetAnimationEnabled(enabled bool) {
 	a.AnimationEnabled = enabled
 	if !enabled {
@@ -85,7 +86,6 @@ func (a *Artwork) SetAnimationEnabled(enabled bool) {
 	}
 }
 
-// UpdateAnimation обновляет внутреннее состояние эффектов обложки.
 func (a *Artwork) UpdateAnimation(dt, envelope float64) {
 	if !a.AnimationEnabled {
 		a.Fade = 1
@@ -127,7 +127,7 @@ func (a *Artwork) UpdateAnimation(dt, envelope float64) {
 	a.LastEnvelope = envelope
 }
 
-// UpdateTrackInfo обновляет информацию о треке
+// UpdateTrackInfo
 func (a *Artwork) UpdateTrackInfo(title, artist, album string, duration, elapsed int) {
 	a.Title = title
 	a.Artist = artist
