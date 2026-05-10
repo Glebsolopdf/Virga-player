@@ -13,7 +13,7 @@ Virga Player is a terminal application written in Go for visualizing music playb
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                      Main application                           │
-│                          (app/app.go)                          │
+│                        (app/app.go)                             │
 └───────────────────────────┬─────────────────────────────────────┘
                             │
         ┌───────────────────┼───────────────────┐
@@ -22,7 +22,7 @@ Virga Player is a terminal application written in Go for visualizing music playb
 ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
 │ Terminal     │    │ Event        │    │ Settings     │
 │ rendering    │    │ handler      │    │ manager      │
-│ (renderer/)  │    │ (app/interact)│    │ (settings/)  │
+│ (renderer/)  │    │(app/interact)│    │ (settings/)  │
 └──────────────┘    └──────────────┘    └──────────────┘
         │                   │                   │
         └───────────────────┼───────────────────┘
@@ -36,20 +36,20 @@ Virga Player is a terminal application written in Go for visualizing music playb
 │ (animation/) │    │ (rain/)        │    │ • frequency bands   │
 │              │    │                │    │ • envelope tracking │
 │• FPS control │    │ • physics      │    │ • audio capture     │
-│• timing      │    │ • music-reactive│   │ (audio/analyzer.go)  │
-│• main loop  │    │ • rendering    │    │                     │
+│• timing      │    │ • music-reactive│   │ (audio/analyzer.go) │
+│• main loop   │    │ • rendering    │    │                     │
 └──────────────┘    └────────────────┘    └─────────────────────┘
                             │
         ┌───────────────────┼───────────────────┐
         │                   │                   │
         ▼                   ▼                   ▼
 ┌──────────────┐    ┌────────────────┐    ┌──────────────┐
-│ Music data   │    │ Artwork        │    │ Scene         │
-│              │    │ display        │    │ rendering     │
-│ • Playerctl  │    │ • Sixel (PNG)  │    │ • background  │
-│ • JSON file  │    │ • text mode    │    │ • buildings   │
-│ • fallback   │    │ • animations   │    │ • UI elements │
-│ (music/)     │    │ (artwork/)     │    │ (scene/)      │
+│ Music data   │    │ Artwork        │    │ Scene        │
+│              │    │ display        │    │ rendering    │
+│ • Playerctl  │    │ • Sixel (PNG)  │    │ • background │
+│ • JSON file   │    │ • text mode    │    │ • buildings  │
+│ • fallback   │    │ • animations   │    │ • UI elements│
+│ (music/)     │    │ (artwork/)     │    │ (scene/)     │
 └──────────────┘    └────────────────┘    └──────────────┘
 ```
 
