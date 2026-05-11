@@ -5,6 +5,7 @@
 ![Platform](https://img.shields.io/badge/Platform-Linux-yellow.svg)
 
 Virga Player — терминальное приложение на Go для визуализации музыкального потока с частицами дождя и отображением треков.
+
 ![Player preview 1](<for readme/prew.png>)
 ![Player preview 2](<for readme/prew1.png>)
 
@@ -14,8 +15,8 @@ Virga Player — терминальное приложение на Go для в
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                      Основное приложение                         │
-│                          (app/app.go)                            │
+│                      Основное приложение                        │
+│                          (app/app.go)                           │
 └───────────────────────────┬─────────────────────────────────────┘
                             │
         ┌───────────────────┼───────────────────┐
@@ -199,8 +200,8 @@ Virga Player — терминальное приложение на Go для в
 
 1. **Клонируйте репозиторий:**
 ```bash
-git clone <repository-url>
-cd virga-player
+git clone <https://github.com/Glebsolopdf/Virga-playerl>
+cd Virga-player
 ```
 
 2. **Установите зависимости:**
@@ -333,66 +334,110 @@ go build -o virga-player main.go
 ## Структура проекта
 
 ```
-virga-player/
-├── README.md                  # English версия
-├── README.ru.md              # Русская версия
-├── src/
-│   ├── main.go               # Точка входа
-│   ├── go.mod                # Определение Go модуля
-│   ├── animation/
-│   │   └── engine.go         # Движок FPS и таймирования
-│   ├── app/
-│   │   ├── app.go            # Основная структура App
-│   │   ├── init.go           # Инициализация
-│   │   ├── lifecycle.go      # Запуск/остановка/очистка
-│   │   ├── interaction.go    # Обработка клавиатуры
-│   │   ├── settings_flow.go  # Логика UI меню настроек
-│   │   ├── tick.go           # Основной цикл
-│   │   ├── install.go        # Утилиты установки
-│   │   ├── artwork/          # Отображение обложки альбома
-│   │   ├── bootstrap/        # Процедуры загрузки
-│   │   ├── events/           # Система событий
-│   │   ├── frame/            # Управление кадрами
-│   │   ├── message/          # Сообщения/уведомления
-│   │   ├── player/           # Состояние плеера
-│   │   └── state/            # Состояние приложения
-│   ├── audio/
-│   │   └── analyzer.go       # Анализ частот звука
-│   ├── music/
-│   │   ├── track.go          # Структура информации о треке
-│   │   ├── playerctl.go      # Поддержка MPRIS
-│   │   ├── json_default.go   # Поддержка JSON файла
-│   │   ├── artwork_lookup.go # Обнаружение обложки
-│   │   ├── artwork_path.go   # Разрешение пути
-│   │   ├── format.go         # Форматирование
-│   │   └── mpd.go            # Поддержка MPD (заполнитель)
-│   ├── rain/
-│   │   ├── types.go          # Структуры данных
-│   │   ├── system.go         # Система частиц
-│   │   ├── spawn.go          # Логика появления
-│   │   ├── update.go         # Физическое моделирование
-│   │   ├── draw.go           # Рендеринг
-│   │   └── particle.go       # Поведение частицы
-│   ├── renderer/
-│   │   └── renderer.go       # Рендеринг терминала
-│   ├── scene/
-│   │   └── scene.go          # Композиция сцены
-│   └── settings/
-│       ├── config.go         # Управление конфигурацией
-│       ├── theme.go          # Управление темой
-│       ├── page.go           # Абстракция страницы
-│       ├── page/             # UI настроек
-│       └── theme/            # Определения тем
+└─ ❯ tree
+├── build.sh
+├── for readme
+│   ├── prew1.png
+│   ├── prew.png
+│   └── virga.png
+├── install.sh
+├── LICENSE
+├── README.md
+├── README.ru.md
+├── src
+│   ├── animation
+│   │   └── engine.go
+│   ├── app
+│   │   ├── app.go
+│   │   ├── artwork
+│   │   │   ├── artwork.go
+│   │   │   ├── draw.go
+│   │   │   ├── image_io.go
+│   │   │   ├── image_render.go
+│   │   │   ├── render_sixel.go
+│   │   │   ├── render_text.go
+│   │   │   └── sixel_support.go
+│   │   ├── bootstrap
+│   │   │   └── bootstrap.go
+│   │   ├── events
+│   │   │   └── events.go
+│   │   ├── frame
+│   │   │   ├── frame.go
+│   │   │   ├── hit.go
+│   │   │   └── render.go
+│   │   ├── init.go
+│   │   ├── install
+│   │   │   ├── install.go
+│   │   │   ├── shell.go
+│   │   │   ├── system.go
+│   │   │   ├── user.go
+│   │   │   └── utils.go
+│   │   ├── interaction.go
+│   │   ├── lifecycle.go
+│   │   ├── message
+│   │   │   └── message.go
+│   │   ├── player
+│   │   │   └── player.go
+│   │   ├── settings_flow.go
+│   │   ├── state
+│   │   │   └── state.go
+│   │   └── tick.go
+│   ├── audio
+│   │   ├── analysis.go
+│   │   ├── analyzer.go
+│   │   ├── dsp.go
+│   │   ├── monitor_source.go
+│   │   └── types.go
+│   ├── go.mod
+│   ├── go.sum
+│   ├── main.go
+│   ├── music
+│   │   ├── artwork_lookup.go
+│   │   ├── artwork_path.go
+│   │   ├── format.go
+│   │   ├── json_default.go
+│   │   ├── mpd.go
+│   │   ├── playerctl.go
+│   │   └── track.go
+│   ├── rain
+│   │   ├── draw.go
+│   │   ├── particle.go
+│   │   ├── spawn.go
+│   │   ├── system.go
+│   │   ├── types.go
+│   │   └── update.go
+│   ├── renderer
+│   │   └── renderer.go
+│   ├── scene
+│   │   ├── draw.go
+│   │   ├── generate.go
+│   │   ├── scene.go
+│   │   └── types.go
+│   └── settings
+│       ├── config.go
+│       ├── page
+│       │   ├── handler.go
+│       │   ├── menu.go
+│       │   ├── page.go
+│       │   └── render.go
+│       ├── page.go
+│       ├── theme
+│       │   ├── defaults.go
+│       │   ├── loader.go
+│       │   ├── parser
+│       │   │   ├── color.go
+│       │   │   ├── component.go
+│       │   │   ├── rgb.go
+│       │   │   └── rune.go
+│       │   ├── parser.go
+│       │   └── theme.go
+│       └── theme.go
+└── virga-player
+
+22 директории, 77 файлов
 ```
 
 ## Разработка
-
-### Сборка из исходного кода
-
-```bash
-cd src
-go build -o ../virga-player main.go
-```
 
 ### Зависимости
 

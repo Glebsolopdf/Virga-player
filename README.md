@@ -5,6 +5,7 @@
 ![Platform](https://img.shields.io/badge/Platform-Linux-yellow.svg)
 
 Virga Player is a terminal application written in Go for visualizing music playback with rain particle effects and track metadata.
+
 ![Player preview 1](<for readme/prew.png>)
 ![Player preview 2](<for readme/prew1.png>)
 
@@ -24,7 +25,7 @@ Virga Player is a terminal application written in Go for visualizing music playb
 ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
 │ Terminal     │    │ Event        │    │ Settings     │
 │ rendering    │    │ handler      │    │ manager      │
-│ (renderer/)  │    │ (app/interact)│    │ (settings/)  │
+│ (renderer/)  │    │(app/interact)│    │ (settings/)  │
 └──────────────┘    └──────────────┘    └──────────────┘
         │                   │                   │
         └───────────────────┼───────────────────┘
@@ -37,21 +38,21 @@ Virga Player is a terminal application written in Go for visualizing music playb
 │ engine       │    │ system         │    │                     │
 │ (animation/) │    │ (rain/)        │    │ • frequency bands   │
 │              │    │                │    │ • envelope tracking │
-│• FPS control │    │ • physics      │    │ • audio capture     │
-│• timing      │    │ • music-reactive│   │ (audio/analyzer.go)  │
-│• main loop  │    │ • rendering    │    │                     │
+│• FPS control │    │• physics       │    │ • audio capture     │
+│• timing      │    │• music-reactive│    │ (audio/analyzer.go) │
+│• main loop   │    │• rendering     │    │                     │
 └──────────────┘    └────────────────┘    └─────────────────────┘
                             │
         ┌───────────────────┼───────────────────┐
         │                   │                   │
         ▼                   ▼                   ▼
 ┌──────────────┐    ┌────────────────┐    ┌──────────────┐
-│ Music data   │    │ Artwork        │    │ Scene         │
-│              │    │ display        │    │ rendering     │
-│ • Playerctl  │    │ • Sixel (PNG)  │    │ • background  │
-│ • JSON file  │    │ • text mode    │    │ • buildings   │
-│ • fallback   │    │ • animations   │    │ • UI elements │
-│ (music/)     │    │ (artwork/)     │    │ (scene/)      │
+│ Music data   │    │ Artwork        │    │ Scene        │
+│              │    │ display        │    │ rendering    │
+│ • Playerctl  │    │ • Sixel (PNG)  │    │ • background │
+│ • JSON file  │    │ • text mode    │    │ • buildings  │
+│ • fallback   │    │ • animations   │    │ • UI elements│
+│ (music/)     │    │ (artwork/)     │    │ (scene/)     │
 └──────────────┘    └────────────────┘    └──────────────┘
 ```
 
@@ -66,7 +67,7 @@ Central coordinator of application lifecycle and subsystem integration.
 - `interaction.go` - keyboard event handling
 - `settings_flow.go` - settings menu navigation logic
 - `tick.go` - main loop timing
-- `install.go` - installation utilities
+- `install/` - installation and environment helpers
 - `bootstrap/` - bootstrap procedures
 - `state/` - application state
 - `events/` - internal event handlers
@@ -194,8 +195,8 @@ Background rendering and scene composition.
 ### Installation
 
 ```bash
-git clone <repository-url>
-cd virga-player
+git clone <https://github.com/Glebsolopdf/Virga-playerl>
+cd Virga-player
 cd src
 go mod download
 go build -o ../virga-player main.go
@@ -313,66 +314,109 @@ Configuration limits:
 ## Project structure
 
 ```
-virga-player/
+├── build.sh
+├── for readme
+│   ├── prew1.png
+│   ├── prew.png
+│   └── virga.png
+├── install.sh
+├── LICENSE
 ├── README.md
 ├── README.ru.md
-├── src/
-│   ├── main.go
-│   ├── go.mod
-│   ├── animation/
-│   │   └── engine.go
-│   ├── app/
-│   │   ├── app.go
-│   │   ├── init.go
-│   │   ├── lifecycle.go
-│   │   ├── interaction.go
-│   │   ├── settings_flow.go
-│   │   ├── tick.go
-│   │   ├── install.go
-│   │   ├── artwork/
-│   │   ├── bootstrap/
-│   │   ├── events/
-│   │   ├── frame/
-│   │   ├── message/
-│   │   ├── player/
-│   │   └── state/
-│   ├── audio/
-│   │   └── analyzer.go
-│   ├── music/
-│   │   ├── track.go
-│   │   ├── playerctl.go
-│   │   ├── json_default.go
-│   │   ├── artwork_lookup.go
-│   │   ├── artwork_path.go
-│   │   ├── format.go
-│   │   └── mpd.go
-│   ├── rain/
-│   │   ├── types.go
-│   │   ├── system.go
-│   │   ├── spawn.go
-│   │   ├── update.go
-│   │   ├── draw.go
-│   │   └── particle.go
-│   ├── renderer/
-│   │   └── renderer.go
-│   ├── scene/
-│   │   └── scene.go
-│   └── settings/
-│       ├── config.go
-│       ├── theme.go
-│       ├── page.go
-│       ├── page/
-│       └── theme/
+├── src
+│   ├── animation
+│   │   └── engine.go
+│   ├── app
+│   │   ├── app.go
+│   │   ├── artwork
+│   │   │   ├── artwork.go
+│   │   │   ├── draw.go
+│   │   │   ├── image_io.go
+│   │   │   ├── image_render.go
+│   │   │   ├── render_sixel.go
+│   │   │   ├── render_text.go
+│   │   │   └── sixel_support.go
+│   │   ├── bootstrap
+│   │   │   └── bootstrap.go
+│   │   ├── events
+│   │   │   └── events.go
+│   │   ├── frame
+│   │   │   ├── frame.go
+│   │   │   ├── hit.go
+│   │   │   └── render.go
+│   │   ├── init.go
+│   │   ├── install
+│   │   │   ├── install.go
+│   │   │   ├── shell.go
+│   │   │   ├── system.go
+│   │   │   ├── user.go
+│   │   │   └── utils.go
+│   │   ├── interaction.go
+│   │   ├── lifecycle.go
+│   │   ├── message
+│   │   │   └── message.go
+│   │   ├── player
+│   │   │   └── player.go
+│   │   ├── settings_flow.go
+│   │   ├── state
+│   │   │   └── state.go
+│   │   └── tick.go
+│   ├── audio
+│   │   ├── analysis.go
+│   │   ├── analyzer.go
+│   │   ├── dsp.go
+│   │   ├── monitor_source.go
+│   │   └── types.go
+│   ├── go.mod
+│   ├── go.sum
+│   ├── main.go
+│   ├── music
+│   │   ├── artwork_lookup.go
+│   │   ├── artwork_path.go
+│   │   ├── format.go
+│   │   ├── json_default.go
+│   │   ├── mpd.go
+│   │   ├── playerctl.go
+│   │   └── track.go
+│   ├── rain
+│   │   ├── draw.go
+│   │   ├── particle.go
+│   │   ├── spawn.go
+│   │   ├── system.go
+│   │   ├── types.go
+│   │   └── update.go
+│   ├── renderer
+│   │   └── renderer.go
+│   ├── scene
+│   │   ├── draw.go
+│   │   ├── generate.go
+│   │   ├── scene.go
+│   │   └── types.go
+│   └── settings
+│       ├── config.go
+│       ├── page
+│       │   ├── handler.go
+│       │   ├── menu.go
+│       │   ├── page.go
+│       │   └── render.go
+│       ├── page.go
+│       ├── theme
+│       │   ├── defaults.go
+│       │   ├── loader.go
+│       │   ├── parser
+│       │   │   ├── color.go
+│       │   │   ├── component.go
+│       │   │   ├── rgb.go
+│       │   │   └── rune.go
+│       │   ├── parser.go
+│       │   └── theme.go
+│       └── theme.go
+└── virga-player
+
+22 directories, 77 files
 ```
 
 ## Development
-
-### Build from source
-
-```bash
-cd src
-go build -o ../virga-player main.go
-```
 
 ### Dependencies
 
