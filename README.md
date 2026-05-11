@@ -200,7 +200,7 @@ cd Virga-player
 cd src
 go mod download
 go build -o ../virga-player main.go
-./Virga-player
+./virga-player
 ```
 
 ## Configuration
