@@ -195,12 +195,12 @@ Background rendering and scene composition.
 ### Installation
 
 ```bash
-git clone <https://github.com/Glebsolopdf/Virga-playerl>
+git clone https://github.com/Glebsolopdf/Virga-playerl
 cd Virga-player
 cd src
 go mod download
 go build -o ../virga-player main.go
-./virga-player
+./Virga-player
 ```
 
 ## Configuration
