@@ -198,25 +198,13 @@ Virga Player — терминальное приложение на Go для в
 
 ### Установка
 
-1. **Клонируйте репозиторий:**
 ```bash
-git clone <https://github.com/Glebsolopdf/Virga-playerl>
+git clone https://github.com/Glebsolopdf/Virga-player
 cd Virga-player
-```
-
-2. **Установите зависимости:**
-```bash
 cd src
 go mod download
-```
-
-3. **Соберите приложение:**
-```bash
 go build -o virga-player main.go
-```
-
-4. **Запустите приложение:**
-```bash
+cd ..
 ./virga-player
 ```
 
