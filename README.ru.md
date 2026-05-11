@@ -13,53 +13,6 @@ Virga Player — терминальное приложение на Go для в
 
 ## Архитектура
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                      Основное приложение                        │
-│                          (app/app.go)                           │
-└───────────────────────────┬─────────────────────────────────────┘
-                            │
-        ┌───────────────────┼───────────────────┐
-        │                   │                   │
-        ▼                   ▼                   ▼
-┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│   Рендеринг  │    │  Обработчик  │    │  Менеджер    │
-│  терминала   │    │   событий    │    │  настроек    │
-│(renderer/)   │    │(app/interact)│    │(settings/)   │
-└──────────────┘    └──────────────┘    └──────────────┘
-        │                   │                   │
-        └───────────────────┼───────────────────┘
-                            │
-        ┌───────────────────┼───────────────────────────┐
-        │                   │                           │
-        ▼                   ▼                           ▼
-┌──────────────┐    ┌────────────────┐    ┌─────────────────────┐
-│  Движок      │    │  Система       │    │ Анализ звука        │
-│  анимации    │    │  частиц        │    │                     │
-│(animation/)  │    │(rain/)         │    │ • Частотные полосы  │
-│              │    │                │    │ • Отслеживание      │
-│• Контроль    │    │ • Физика       │    │   огибающей         │
-│  FPS         │    │ • Реактивность │    │ • Захват звука      │
-│• Таймер      │    │   на музыку    │    │(audio/analyzer.go)  │
-│• Основной    │    │ • Рендеринг    │    │                     │
-│  цикл        │    │                │    │                     │
-└──────────────┘    └────────────────┘    └─────────────────────┘
-                            │
-        ┌───────────────────┼───────────────────┐
-        │                   │                   │
-        ▼                   ▼                   ▼
-┌──────────────┐    ┌────────────────┐    ┌──────────────┐
-│ Данные о     │    │ Отображение    │    │ Рендеринг    │
-│ музыке       │    │ обложки        │    │ сцены        │
-│              │    │                │    │              │
-│ • Playerctl  │    │ • Sixel (PNG)  │    │ • Фон        │
-│ • JSON файл  │    │ • Текстовый    │    │ • Здания     │
-│ • Резервное  │    │   режим        │    │ • Элементы   │
-│(music/)      │    │ • Анимации     │    │   UI         │
-│              │    │(artwork/)      │    │(scene/)      │
-└──────────────┘    └────────────────┘    └──────────────┘
-```
-
 ### Основные компоненты
 
 #### **1. App (`app/`)**
@@ -196,28 +149,11 @@ Virga Player — терминальное приложение на Go для в
 - **ImageMagick** (команда `convert`) - для рендеринга обложек в Sixel
 - **Терминал** с поддержкой 24-битного цвета (поддержка Sixel опциональна, но рекомендуется)
 
-### Установка
+### Установка и сброка
 
-1. **Клонируйте репозиторий:**
 ```bash
-git clone <https://github.com/Glebsolopdf/Virga-playerl>
-cd Virga-player
-```
-
-2. **Установите зависимости:**
-```bash
-cd src
-go mod download
-```
-
-3. **Соберите приложение:**
-```bash
-go build -o virga-player main.go
-```
-
-4. **Запустите приложение:**
-```bash
-./virga-player
+chmod +x install.sh build.sh
+sudo ./install.sh ; ./build.sh
 ```
 
 ## Конфигурация
@@ -330,112 +266,6 @@ go build -o virga-player main.go
 1. Проверьте состояние аудиосистемы
 2. Проверьте что пользователь в группе audio: `groups $USER`
 3. Проверьте существование стандартного sink: `pactl list short sinks`
-
-## Структура проекта
-
-```
-└─ ❯ tree
-├── build.sh
-├── for readme
-│   ├── prew1.png
-│   ├── prew.png
-│   └── virga.png
-├── install.sh
-├── LICENSE
-├── README.md
-├── README.ru.md
-├── src
-│   ├── animation
-│   │   └── engine.go
-│   ├── app
-│   │   ├── app.go
-│   │   ├── artwork
-│   │   │   ├── artwork.go
-│   │   │   ├── draw.go
-│   │   │   ├── image_io.go
-│   │   │   ├── image_render.go
-│   │   │   ├── render_sixel.go
-│   │   │   ├── render_text.go
-│   │   │   └── sixel_support.go
-│   │   ├── bootstrap
-│   │   │   └── bootstrap.go
-│   │   ├── events
-│   │   │   └── events.go
-│   │   ├── frame
-│   │   │   ├── frame.go
-│   │   │   ├── hit.go
-│   │   │   └── render.go
-│   │   ├── init.go
-│   │   ├── install
-│   │   │   ├── install.go
-│   │   │   ├── shell.go
-│   │   │   ├── system.go
-│   │   │   ├── user.go
-│   │   │   └── utils.go
-│   │   ├── interaction.go
-│   │   ├── lifecycle.go
-│   │   ├── message
-│   │   │   └── message.go
-│   │   ├── player
-│   │   │   └── player.go
-│   │   ├── settings_flow.go
-│   │   ├── state
-│   │   │   └── state.go
-│   │   └── tick.go
-│   ├── audio
-│   │   ├── analysis.go
-│   │   ├── analyzer.go
-│   │   ├── dsp.go
-│   │   ├── monitor_source.go
-│   │   └── types.go
-│   ├── go.mod
-│   ├── go.sum
-│   ├── main.go
-│   ├── music
-│   │   ├── artwork_lookup.go
-│   │   ├── artwork_path.go
-│   │   ├── format.go
-│   │   ├── json_default.go
-│   │   ├── mpd.go
-│   │   ├── playerctl.go
-│   │   └── track.go
-│   ├── rain
-│   │   ├── draw.go
-│   │   ├── particle.go
-│   │   ├── spawn.go
-│   │   ├── system.go
-│   │   ├── types.go
-│   │   └── update.go
-│   ├── renderer
-│   │   └── renderer.go
-│   ├── scene
-│   │   ├── draw.go
-│   │   ├── generate.go
-│   │   ├── scene.go
-│   │   └── types.go
-│   └── settings
-│       ├── config.go
-│       ├── page
-│       │   ├── handler.go
-│       │   ├── menu.go
-│       │   ├── page.go
-│       │   └── render.go
-│       ├── page.go
-│       ├── theme
-│       │   ├── defaults.go
-│       │   ├── loader.go
-│       │   ├── parser
-│       │   │   ├── color.go
-│       │   │   ├── component.go
-│       │   │   ├── rgb.go
-│       │   │   └── rune.go
-│       │   ├── parser.go
-│       │   └── theme.go
-│       └── theme.go
-└── virga-player
-
-22 директории, 77 файлов
-```
 
 ## Разработка
 
