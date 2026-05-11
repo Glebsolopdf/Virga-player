@@ -8,11 +8,12 @@ import (
 )
 
 type Message struct {
-	Text      string
-	Hidden    []bool
-	Converted bool
-	X         int
-	Y         int
+	Text       string
+	Hidden     []bool
+	Converted  bool
+	Persistent bool
+	X          int
+	Y          int
 }
 
 func New(text string, width, height int) *Message {
@@ -28,6 +29,7 @@ func (m *Message) SetText(text string, width, height int) {
 	m.Text = text
 	m.Hidden = make([]bool, len(text))
 	m.Converted = false
+	m.Persistent = false
 	m.UpdatePosition(width, height)
 }
 

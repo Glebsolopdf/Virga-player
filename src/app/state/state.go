@@ -86,7 +86,7 @@ func (s *AppState) SinceStart() time.Duration {
 }
 
 func (s *AppState) ShouldSpawnMessageDrops() bool {
-	return s.WashTriggered && !s.Message.Converted && time.Since(s.WashStart) >= 5*time.Second
+	return s.WashTriggered && !s.Message.Converted && !s.Message.Persistent && time.Since(s.WashStart) >= 5*time.Second
 }
 
 func (s *AppState) IsIntroActive() bool {

@@ -6,11 +6,57 @@ import (
 	"net/http"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 )
 
 var ogImageRegexp = regexp.MustCompile(`(?i)property=["']og:image["'][^>]*content=["']([^"']+)["']|content=["']([^"']+)["'][^>]*property=["']og:image["']`)
 var twitterImageRegexp = regexp.MustCompile(`(?i)name=["']twitter:image["'][^>]*content=["']([^"']+)["']|content=["']([^"']+)["'][^>]*name=["']twitter:image["']`)
+
+const (
+	artworkLookupPositiveTTL = 10 * time.Minute
+	artworkLookupNegativeTTL = 30 * time.Second
+)
+
+type artworkLookupCacheEntry struct {
+	artworkURL string
+	expiresAt  time.Time
+}
+
+var (
+	artworkLookupCacheMu sync.RWMutex
+	artworkLookupCache   = map[string]artworkLookupCacheEntry{}
+)
+
+func getCachedArtworkURL(trackURL string) (string, bool) {
+	artworkLookupCacheMu.RLock()
+	entry, ok := artworkLookupCache[trackURL]
+	artworkLookupCacheMu.RUnlock()
+	if !ok {
+		return "", false
+	}
+	if time.Now().After(entry.expiresAt) {
+		artworkLookupCacheMu.Lock()
+		delete(artworkLookupCache, trackURL)
+		artworkLookupCacheMu.Unlock()
+		return "", false
+	}
+	return entry.artworkURL, true
+}
+
+func storeCachedArtworkURL(trackURL, artworkURL string) {
+	ttl := artworkLookupPositiveTTL
+	if artworkURL == "" {
+		ttl = artworkLookupNegativeTTL
+	}
+
+	artworkLookupCacheMu.Lock()
+	artworkLookupCache[trackURL] = artworkLookupCacheEntry{
+		artworkURL: artworkURL,
+		expiresAt:  time.Now().Add(ttl),
+	}
+	artworkLookupCacheMu.Unlock()
+}
 
 func getArtworkURL() string {
 	keys := []string{"mpris:artUrl", "xesam:artUrl", "artUrl", "xesam:artwork", "thumbnail"}
@@ -41,7 +87,18 @@ func getArtworkURL() string {
 
 	trackURL := getPlayerctlMetadataValue("xesam:url")
 	if trackURL != "" {
-		return getArtworkFromTrackPage(trackURL)
+		if cached, ok := getCachedArtworkURL(trackURL); ok {
+			return cached
+		}
+
+		if !strings.HasPrefix(trackURL, "http://") && !strings.HasPrefix(trackURL, "https://") {
+			storeCachedArtworkURL(trackURL, "")
+			return ""
+		}
+
+		artworkURL := getArtworkFromTrackPage(trackURL)
+		storeCachedArtworkURL(trackURL, artworkURL)
+		return artworkURL
 	}
 
 	return ""

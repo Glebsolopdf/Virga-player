@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	xdraw "golang.org/x/image/draw"
 )
@@ -19,11 +20,16 @@ func (a *Artwork) loadCoverImage() {
 	var img image.Image
 
 	if strings.HasPrefix(a.ImagePath, "http://") || strings.HasPrefix(a.ImagePath, "https://") {
-		resp, err := http.Get(a.ImagePath)
+		client := http.Client{Timeout: 4 * time.Second}
+		resp, err := client.Get(a.ImagePath)
 		if err != nil {
 			return
 		}
 		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			return
+		}
 
 		img, _, err = image.Decode(resp.Body)
 		if err != nil {
@@ -43,7 +49,10 @@ func (a *Artwork) loadCoverImage() {
 	}
 
 	img = trimCoverPadding(img)
-	a.CoverImg = normalizeCoverImage(img)
+	cov := normalizeCoverImage(img)
+	a.mu.Lock()
+	a.CoverImg = cov
+	a.mu.Unlock()
 }
 
 func trimCoverPadding(img image.Image) image.Image {

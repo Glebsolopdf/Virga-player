@@ -35,6 +35,9 @@ func (a *App) Run() error {
 				dt = a.animEngine.FrameDuration().Seconds()
 			}
 			a.lastTick = now
+			if !a.exitAt.IsZero() && now.After(a.exitAt) {
+				return nil
+			}
 			a.onTick(dt)
 		case event := <-a.eventChan:
 			if a.handleEvent(event) {

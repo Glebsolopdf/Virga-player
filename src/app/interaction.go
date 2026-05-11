@@ -8,7 +8,7 @@ func (a *App) handleEvent(event tcell.Event) bool {
 		if a.settingsOpen {
 			exit, save, deleteVirga := a.settingsPage.HandleKey(ev)
 			if exit {
-				a.closeSettings(save, deleteVirga)
+				return a.closeSettings(save, deleteVirga)
 			}
 			return false
 		}

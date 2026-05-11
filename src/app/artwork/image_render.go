@@ -10,12 +10,13 @@ import (
 
 // drawImageInBox
 func (a *Artwork) drawImageInBox(screen tcell.Screen, x, y, w, h int) {
-	if a.CoverImg == nil {
+	img := a.getCoverImg()
+	if img == nil {
 		return
 	}
 
 	screenW, screenH := screen.Size()
-	b := a.CoverImg.Bounds()
+	b := img.Bounds()
 	srcW := b.Dx()
 	srcH := b.Dy()
 	if srcW <= 0 || srcH <= 0 || w <= 0 || h <= 0 {
@@ -58,8 +59,8 @@ func (a *Artwork) drawImageInBox(screen tcell.Screen, x, y, w, h int) {
 				continue
 			}
 
-			topColor := rgbaToTcell(sampleCenterColor(a.CoverImg, srcX0, topSrcY0, srcX1, topSrcY1), bg, a.Fade, a.Pulse)
-			botColor := rgbaToTcell(sampleCenterColor(a.CoverImg, srcX0, botSrcY0, srcX1, botSrcY1), bg, a.Fade, a.Pulse)
+			topColor := rgbaToTcell(sampleCenterColor(img, srcX0, topSrcY0, srcX1, topSrcY1), bg, a.Fade, a.Pulse)
+			botColor := rgbaToTcell(sampleCenterColor(img, srcX0, botSrcY0, srcX1, botSrcY1), bg, a.Fade, a.Pulse)
 			style := tcell.StyleDefault.Foreground(topColor).Background(botColor)
 			screen.SetContent(xPos, yPos, '▀', nil, style)
 		}

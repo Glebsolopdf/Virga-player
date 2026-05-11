@@ -3,6 +3,7 @@ package app
 import (
 	"virga-player/animation"
 	"virga-player/app/events"
+	"virga-player/app/install"
 	"virga-player/app/state"
 	"virga-player/audio"
 	"virga-player/rain"
@@ -24,7 +25,7 @@ func (a *App) initComponents() {
 		theme = settings.DefaultTheme()
 	}
 	settings.SetCurrentTheme(theme)
-	aliasesReady := ensureCommandAliases()
+	aliasesReady := install.EnsureCommandAliases()
 	messageText := defaultStatusMessage
 	nextMessageText := ""
 	if firstRun {

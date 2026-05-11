@@ -23,6 +23,7 @@ type Player struct {
 	RecoveryDuration time.Duration
 	Artwork          *artwork.Artwork
 	ArtworkPath      string
+	ArtworkURL       string
 }
 
 type HitArea struct {
@@ -53,6 +54,7 @@ func New(centerX, centerY int) *Player {
 		RecoveryDuration: 500 * time.Millisecond,
 		Artwork:          art,
 		ArtworkPath:      "",
+		ArtworkURL:       "",
 	}
 }
 
@@ -84,15 +86,15 @@ func (p *Player) SetTrackInfoWithArtwork(title, artist, album string, durationSt
 		return
 	}
 
-	if trackChanged && artworkPath == "" {
-		p.ArtworkPath = ""
-		p.Artwork = artwork.NewArtwork("", title, artist, album, durationSec, elapsedSec)
+	if artworkPath != "" && p.ArtworkPath != artworkPath {
+		p.ArtworkPath = artworkPath
+		p.Artwork = artwork.NewArtwork(artworkPath, title, artist, album, durationSec, elapsedSec)
 		return
 	}
 
-	if artworkPath != "" && (p.ArtworkPath != artworkPath || trackChanged) {
-		p.ArtworkPath = artworkPath
-		p.Artwork = artwork.NewArtwork(artworkPath, title, artist, album, durationSec, elapsedSec)
+	if trackChanged && artworkPath == "" {
+		p.ArtworkPath = ""
+		p.Artwork = artwork.NewArtwork("", title, artist, album, durationSec, elapsedSec)
 		return
 	}
 

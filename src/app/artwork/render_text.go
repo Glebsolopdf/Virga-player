@@ -14,29 +14,36 @@ func (a *Artwork) renderTextOnly(screen tcell.Screen) {
 	centerY := h / 2
 	infoBlockH := 7
 
-	hasCover := a.CoverImg != nil
+	hasCover := a.getCoverImg() != nil
 	infoGap := 4
 	infoW := 34
 	if w >= 100 {
 		infoW = 28
 	}
 	if w >= 120 {
-		infoW = 24
+		infoW = 26
 	}
 	if w >= 150 {
-		infoW = 20
+		infoW = 24
 	}
 
-	coverInnerH := 12
+	if infoW > w/3 {
+		infoW = w / 3
+	}
+
+	a.ScrollWidth = infoW
+
+	coverInnerH := 10
 	coverInnerW := coverInnerH * 2
-	if a.CoverImg != nil {
-		imgBounds := a.CoverImg.Bounds()
+	if img := a.getCoverImg(); img != nil {
+		imgBounds := img.Bounds()
 		if imgBounds.Dx() > 0 && imgBounds.Dy() > 0 {
-			coverInnerH = imgBounds.Dy() / 2
-			if coverInnerH < 12 {
-				coverInnerH = 12
+			aspect := float64(imgBounds.Dx()) / float64(imgBounds.Dy())
+			coverInnerH = imgBounds.Dy() / 24
+			if coverInnerH < 10 {
+				coverInnerH = 10
 			}
-			coverInnerW = imgBounds.Dx() / 2
+			coverInnerW = int(float64(coverInnerH) * aspect * 1.8)
 			if coverInnerW < coverInnerH*2 {
 				coverInnerW = coverInnerH * 2
 			}
@@ -48,6 +55,10 @@ func (a *Artwork) renderTextOnly(screen tcell.Screen) {
 
 	if coverInnerW > maxCoverByWidth {
 		coverInnerW = maxCoverByWidth
+		coverInnerH = coverInnerW / 2
+	}
+	if coverInnerW > w/3 {
+		coverInnerW = w / 3
 		coverInnerH = coverInnerW / 2
 	}
 	if coverInnerH > maxCoverByHeight {
@@ -80,25 +91,14 @@ func (a *Artwork) renderTextOnly(screen tcell.Screen) {
 		a.drawImageInBox(screen, boxX, boxY, coverInnerW, coverInnerH)
 	}
 
-	if len(a.Title) > 30 {
-		a.drawCenteredInArea(screen, infoX, infoW, infoY, a.Title[:30], theme.TrackTitle)
-	} else {
-		a.drawCenteredInArea(screen, infoX, infoW, infoY, a.Title, theme.TrackTitle)
-	}
+	a.drawCenteredOrScrollingText(screen, infoX, infoW, infoY, a.Title, theme.TrackTitle)
+	a.drawCenteredOrScrollingText(screen, infoX, infoW, infoY+1, a.Artist, theme.TrackArtist)
+	a.drawCenteredOrScrollingText(screen, infoX, infoW, infoY+2, a.Album, theme.TrackAlbum)
 
-	if len(a.Artist) > 30 {
-		a.drawCenteredInArea(screen, infoX, infoW, infoY+1, a.Artist[:30], theme.TrackArtist)
-	} else {
-		a.drawCenteredInArea(screen, infoX, infoW, infoY+1, a.Artist, theme.TrackArtist)
+	barWidth := infoW + 6
+	if barWidth > w-10 {
+		barWidth = w - 10
 	}
-
-	if len(a.Album) > 30 {
-		a.drawCenteredInArea(screen, infoX, infoW, infoY+2, a.Album[:30], theme.TrackAlbum)
-	} else {
-		a.drawCenteredInArea(screen, infoX, infoW, infoY+2, a.Album, theme.TrackAlbum)
-	}
-
-	barWidth := infoW - 6
 	if barWidth < 16 {
 		barWidth = 16
 	}
@@ -111,5 +111,35 @@ func (a *Artwork) renderTextOnly(screen tcell.Screen) {
 		timeStr := formatTime(a.Elapsed) + " / --:--"
 		a.drawTimeline(screen, infoX+infoW/2, infoY+4, barWidth)
 		a.drawCenteredInArea(screen, infoX, infoW, infoY+6, timeStr, theme.TrackTime)
+	}
+}
+
+func (a *Artwork) drawCenteredOrScrollingText(screen tcell.Screen, x, w, y int, text string, color tcell.Color) {
+	runes := []rune(text)
+	if len(runes) <= w {
+		a.drawCenteredInArea(screen, x, w, y, text, color)
+		return
+	}
+
+	maxOffset := len(runes) - w
+	if maxOffset < 0 {
+		maxOffset = 0
+	}
+	if a.ScrollOffset > maxOffset {
+		a.ScrollOffset = maxOffset
+	}
+	if a.ScrollOffset < 0 {
+		a.ScrollOffset = 0
+	}
+
+	visible := runes[a.ScrollOffset:]
+	if len(visible) > w {
+		visible = visible[:w]
+	}
+
+	for i, r := range visible {
+		if x+i >= 0 {
+			a.drawText(screen, x+i, y, string([]rune{r}), color)
+		}
 	}
 }

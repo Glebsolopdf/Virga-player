@@ -1,7 +1,10 @@
 package app
 
 import (
+	"time"
+
 	"virga-player/animation"
+	"virga-player/app/install"
 	"virga-player/app/player"
 	"virga-player/music"
 	"virga-player/settings"
@@ -13,13 +16,16 @@ func (a *App) openSettings() {
 	a.settingsPage = page.NewPage(a.cfg.Clone())
 }
 
-func (a *App) closeSettings(save bool, deleteVirga bool) {
+func (a *App) closeSettings(save bool, deleteVirga bool) bool {
 	if deleteVirga {
-		_ = removeVirgaInstallation()
+		_ = install.RemoveVirgaInstallation()
 		a.cfg = settings.DefaultConfig()
 		a.applyConfig()
+		a.state.Message.SetText("Virga removed. Restart your shell or run 'hash -r' to refresh command lookup.", a.width, a.height)
+		a.state.Message.Persistent = true
 		a.settingsOpen = false
-		return
+		a.exitAt = time.Now().Add(7 * time.Second)
+		return false
 	}
 
 	if save {
@@ -28,6 +34,7 @@ func (a *App) closeSettings(save bool, deleteVirga bool) {
 		a.applyConfig()
 	}
 	a.settingsOpen = false
+	return false
 }
 
 func (a *App) applyConfig() {
@@ -53,6 +60,7 @@ func (a *App) applyConfig() {
 			track.Elapsed,
 			artworkPath,
 		)
+		a.state.Player.ArtworkURL = track.ArtworkURL
 	} else if !a.cfg.Player && a.state.PlayerEnabled {
 		a.state.PlayerEnabled = false
 		a.state.Player = &player.Player{}

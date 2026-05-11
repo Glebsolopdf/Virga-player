@@ -23,17 +23,39 @@ func (a *App) onTick(dt float64) {
 
 	if a.state.PlayerEnabled && a.state.Player != nil {
 		track := music.GetTrackInfo()
-		artworkPath := track.GetArtworkPath()
-		a.state.Player.SetTrackInfoWithArtwork(
-			track.Title,
-			track.Artist,
-			track.Album,
-			track.DurationFormatted(),
-			track.ElapsedFormatted(),
-			track.Duration,
-			track.Elapsed,
-			artworkPath,
-		)
+		artworkPath := a.state.Player.ArtworkPath
+		if track.ArtworkURL != a.state.Player.ArtworkURL {
+			resolvedPath := track.GetArtworkPath()
+			artworkPath = resolvedPath
+			if resolvedPath == "" && a.state.Player.ArtworkPath != "" {
+				artworkPath = a.state.Player.ArtworkPath
+			}
+			a.state.Player.ArtworkURL = track.ArtworkURL
+		}
+
+		if track.Title != a.state.Player.Title || track.Artist != a.state.Player.Artist || track.Album != a.state.Player.Album || artworkPath != a.state.Player.ArtworkPath {
+			a.state.Player.SetTrackInfoWithArtwork(
+				track.Title,
+				track.Artist,
+				track.Album,
+				track.DurationFormatted(),
+				track.ElapsedFormatted(),
+				track.Duration,
+				track.Elapsed,
+				artworkPath,
+			)
+		} else {
+			a.state.Player.SetTrackInfo(
+				track.Title,
+				track.Artist,
+				track.Album,
+				track.DurationFormatted(),
+				track.ElapsedFormatted(),
+				track.Duration,
+				track.Elapsed,
+			)
+		}
+
 		if a.state.Player.Artwork != nil {
 			a.state.Player.Artwork.SetAnimationEnabled(a.cfg.CoverAnimation)
 			a.state.Player.Artwork.UpdateAnimation(dt, coverPulse)
@@ -75,6 +97,6 @@ func (a *App) onTick(dt float64) {
 		a.state.Message,
 		a.state.Player,
 		a.state.PlayerEnabled,
-		!a.state.IsMessageProtected(),
+		!a.state.IsMessageProtected() && !a.state.Message.Persistent,
 	).Render(dt)
 }

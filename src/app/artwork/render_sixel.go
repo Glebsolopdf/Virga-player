@@ -12,7 +12,7 @@ import (
 
 func (a *Artwork) renderSixel(screen tcell.Screen) {
 	theme := settings.CurrentTheme()
-	if a.CoverImg == nil {
+	if a.getCoverImg() == nil {
 		a.renderTextOnly(screen)
 		return
 	}
@@ -25,7 +25,6 @@ func (a *Artwork) renderSixel(screen tcell.Screen) {
 	}
 
 	screen.SetStyle(tcell.StyleDefault.Background(theme.Background).Foreground(theme.TrackTitle))
-	screen.Clear()
 
 	w, h := screen.Size()
 	centerX := w / 2
@@ -55,12 +54,25 @@ func (a *Artwork) renderSixel(screen tcell.Screen) {
 }
 
 func (a *Artwork) prepareSixelData() bool {
-	var pngData bytes.Buffer
-	if err := imageEncodePNG(&pngData, a.CoverImg); err != nil {
+	img := a.getCoverImg()
+	if img == nil {
 		return false
 	}
 
-	sixelCmd := exec.Command("convert", "png:-", "-filter", "Lanczos", "-resize", "256x256^", "-gravity", "center", "-extent", "256x256", "sixel:-")
+	var pngData bytes.Buffer
+	if err := imageEncodePNG(&pngData, img); err != nil {
+		return false
+	}
+
+	sixelCmd := exec.Command(
+		"convert",
+		"png:-",
+		"-filter", "Lanczos",
+		"-resize", "256x256^",
+		"-gravity", "center",
+		"-extent", "256x256",
+		"sixel:-",
+	)
 	sixelCmd.Stdin = &pngData
 	output, err := sixelCmd.Output()
 	if err != nil || len(output) == 0 {

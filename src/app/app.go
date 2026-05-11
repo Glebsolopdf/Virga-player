@@ -28,6 +28,7 @@ type App struct {
 	height       int
 	lastTick     time.Time
 	settingsOpen bool
+	exitAt       time.Time
 
 	audioAnalyzer *audio.Analyzer
 }
