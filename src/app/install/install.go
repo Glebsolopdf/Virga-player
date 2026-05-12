@@ -7,7 +7,6 @@ import (
 )
 
 const virgaPathExport = `export PATH="$HOME/.local/bin:$PATH"`
-const systemCommandPath = "/usr/bin/virga"
 
 func EnsureCommandAliases() bool {
 	homeDir, err := os.UserHomeDir()
@@ -36,13 +35,10 @@ func EnsureCommandAliases() bool {
 	}
 
 	aliasTarget := executablePath
-	systemInstalled := false
-	if installPath, err := ensureSystemCommand(executablePath); err == nil {
-		aliasTarget = installPath
-		systemInstalled = true
-		_ = removeUserCommand(filepath.Join(binDir, "virga"))
-	} else if userPath, err := ensureUserCommand(executablePath, filepath.Join(binDir, "virga")); err == nil {
+	if userPath, err := ensureUserCommand(executablePath, filepath.Join(binDir, "virga")); err == nil {
 		aliasTarget = userPath
+	} else {
+		return false
 	}
 
 	if err := ensureShellPathEntry(filepath.Join(homeDir, ".profile")); err != nil {
@@ -61,10 +57,7 @@ func EnsureCommandAliases() bool {
 		return false
 	}
 
-	aliases := []string{"virgaplayer"}
-	if !systemInstalled {
-		aliases = append([]string{"virga"}, aliases...)
-	}
+	aliases := []string{"virga", "virgaplayer"}
 	for _, alias := range aliases {
 		aliasPath := filepath.Join(binDir, alias)
 		if err := ensureAlias(aliasPath, aliasTarget); err != nil {
@@ -98,7 +91,6 @@ func RemoveVirgaInstallation() error {
 		}
 	}
 
-	_ = removeSystemCommand()
 	_ = removeShellPathEntry(filepath.Join(homeDir, ".profile"))
 	_ = removeShellPathEntry(filepath.Join(homeDir, ".bash_profile"))
 	_ = removeShellPathEntry(filepath.Join(homeDir, ".bash_login"))

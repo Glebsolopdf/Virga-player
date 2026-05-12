@@ -61,16 +61,34 @@ func (a *Artwork) drawTimeline(screen tcell.Screen, centerX, y, width int) {
 	}
 }
 
+func (a *Artwork) truncateText(text string, maxLen int) string {
+	if maxLen < 1 {
+		return ""
+	}
+	if len(text) <= maxLen {
+		return text
+	}
+	if maxLen < 3 {
+		return text[:maxLen]
+	}
+	return text[:maxLen-3] + "..."
+}
+
 func (a *Artwork) drawCenteredInArea(screen tcell.Screen, x, w, y int, text string, color tcell.Color) {
-	tx := x + (w-len(text))/2
-	a.drawText(screen, tx, y, text, color)
+	truncated := a.truncateText(text, w)
+	tx := x + (w-len(truncated))/2
+	a.drawText(screen, tx, y, truncated, color)
 }
 
 func (a *Artwork) drawText(screen tcell.Screen, x, y int, text string, color tcell.Color) {
 	w, _ := screen.Size()
 	for i, ch := range text {
-		if x+i >= 0 && x+i < w && y >= 0 {
-			screen.SetContent(x+i, y, ch, nil, tcell.Style{}.Foreground(color))
+		posX := x + i
+		if posX >= 0 && posX < w && y >= 0 {
+			screen.SetContent(posX, y, ch, nil, tcell.Style{}.Foreground(color))
+		}
+		if posX >= w {
+			break
 		}
 	}
 }

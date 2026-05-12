@@ -1,8 +1,10 @@
 package page
 
 import (
+	"fmt"
 	"virga-player/renderer"
 	"virga-player/settings"
+	"virga-player/version"
 
 	"github.com/gdamore/tcell/v2"
 )
@@ -40,8 +42,13 @@ func (p *Page) Render(screen tcell.Screen, renderer *renderer.Renderer, width, h
 	if p.Section == sectionNone {
 		helpText = "Esc: cancel and exit  |  s: save and exit"
 	}
+	if p.Config.Debug {
+		helpText += "  |  C: copy logs  K: save logs"
+	}
 	if p.ConfirmDelete {
 		helpText = "Delete Virga confirmation: Enter/Y confirm, Esc/N cancel"
 	}
-	renderer.DrawTextCentered(screen, height-3, helpText, theme.SettingsHint, theme.Background)
+	renderer.DrawTextCentered(screen, height-4, helpText, theme.SettingsHint, theme.Background)
+	footerText := fmt.Sprintf("%s | %s", version.AppVersion, version.GitHubURL)
+	renderer.DrawTextCentered(screen, height-2, footerText, theme.SettingsHint, theme.Background)
 }

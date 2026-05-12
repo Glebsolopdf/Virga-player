@@ -6,6 +6,7 @@ import (
 	"virga-player/animation"
 	"virga-player/app/state"
 	"virga-player/audio"
+	"virga-player/debug"
 	"virga-player/rain"
 	"virga-player/renderer"
 	"virga-player/settings"
@@ -31,4 +32,10 @@ type App struct {
 	exitAt       time.Time
 
 	audioAnalyzer *audio.Analyzer
+	debug         *debug.Manager
+	debugForced   bool
+}
+
+type Options struct {
+	Debug bool
 }

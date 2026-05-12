@@ -104,6 +104,25 @@ func getArtworkURL() string {
 	return ""
 }
 
+func getArtworkURLFromTrackURL(trackURL string) string {
+	if trackURL == "" {
+		return ""
+	}
+
+	if cached, ok := getCachedArtworkURL(trackURL); ok {
+		return cached
+	}
+
+	if !strings.HasPrefix(trackURL, "http://") && !strings.HasPrefix(trackURL, "https://") {
+		storeCachedArtworkURL(trackURL, "")
+		return ""
+	}
+
+	artworkURL := getArtworkFromTrackPage(trackURL)
+	storeCachedArtworkURL(trackURL, artworkURL)
+	return artworkURL
+}
+
 func getArtworkFromTrackPage(trackURL string) string {
 	client := &http.Client{Timeout: 4 * time.Second}
 	req, err := http.NewRequest(http.MethodGet, trackURL, nil)

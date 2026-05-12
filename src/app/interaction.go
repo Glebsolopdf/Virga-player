@@ -5,6 +5,9 @@ import "github.com/gdamore/tcell/v2"
 func (a *App) handleEvent(event tcell.Event) bool {
 	switch ev := event.(type) {
 	case *tcell.EventKey:
+		if a.debug != nil && a.debug.HandleEvent(ev) {
+			return false
+		}
 		if a.settingsOpen {
 			exit, save, deleteVirga := a.settingsPage.HandleKey(ev)
 			if exit {
@@ -25,6 +28,10 @@ func (a *App) handleEvent(event tcell.Event) bool {
 		a.particleSystem.Resize(a.width, a.height)
 		a.state.Resize(a.width, a.height)
 		a.screen.Sync()
+	case *tcell.EventMouse:
+		if a.debug != nil && a.debug.HandleEvent(ev) {
+			return false
+		}
 	}
 	return false
 }

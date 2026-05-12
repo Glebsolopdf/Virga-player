@@ -3,6 +3,7 @@ package frame
 import (
 	"virga-player/app/message"
 	"virga-player/app/player"
+	"virga-player/debug"
 	"virga-player/rain"
 	"virga-player/renderer"
 
@@ -17,9 +18,12 @@ type Frame struct {
 	Player          *player.Player
 	PlayerEnabled   bool
 	MessageErasable bool
+	Debug           *debug.Manager
+	MaxParticles    int
+	TargetFPS       int
 }
 
-func NewFrame(screen tcell.Screen, renderer *renderer.Renderer, particles *rain.ParticleSystem, msg *message.Message, p *player.Player, playerEnabled bool, messageErasable bool) Frame {
+func NewFrame(screen tcell.Screen, renderer *renderer.Renderer, particles *rain.ParticleSystem, msg *message.Message, p *player.Player, playerEnabled bool, messageErasable bool, dbg *debug.Manager, maxParticles int, targetFPS int) Frame {
 	return Frame{
 		Screen:          screen,
 		Renderer:        renderer,
@@ -28,5 +32,8 @@ func NewFrame(screen tcell.Screen, renderer *renderer.Renderer, particles *rain.
 		Player:          p,
 		PlayerEnabled:   playerEnabled,
 		MessageErasable: messageErasable,
+		Debug:           dbg,
+		MaxParticles:    maxParticles,
+		TargetFPS:       targetFPS,
 	}
 }

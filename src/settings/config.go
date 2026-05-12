@@ -20,9 +20,14 @@ type Config struct {
 	MaxParticles           int           `json:"max_particles"`
 	RainSpeed              int           `json:"rain_speed"`
 	RainEnabled            bool          `json:"rain_enabled"`
+	Debug                  bool          `json:"debug"`
 	MusicReactive          bool          `json:"music_reactive"`
 	MusicReactiveIntensity int           `json:"music_reactive_intensity"`
+	RainVisualizer         bool          `json:"rain_visualizer"`
 	CoverAnimation         bool          `json:"cover_animation"`
+	MusicPlayerAnimation   bool          `json:"music_player_animation"`
+	MusicPlayerIntensity   int           `json:"music_player_intensity"`
+	MusicPlayerInvert      bool          `json:"music_player_invert"`
 	Direction              DirectionMode `json:"direction"`
 	Player                 bool          `json:"player"`
 }
@@ -33,9 +38,14 @@ func DefaultConfig() *Config {
 		MaxParticles:           220,
 		RainSpeed:              100,
 		RainEnabled:            true,
+		Debug:                  false,
 		MusicReactive:          false,
 		MusicReactiveIntensity: 100,
+		RainVisualizer:         false,
 		CoverAnimation:         false,
+		MusicPlayerAnimation:   false,
+		MusicPlayerIntensity:   100,
+		MusicPlayerInvert:      false,
 		Direction:              DirectionRandom,
 		Player:                 false,
 	}
@@ -134,6 +144,12 @@ func (c *Config) normalize() {
 	if c.MusicReactiveIntensity > 200 {
 		c.MusicReactiveIntensity = 200
 	}
+	if c.MusicPlayerIntensity < 20 {
+		c.MusicPlayerIntensity = 20
+	}
+	if c.MusicPlayerIntensity > 200 {
+		c.MusicPlayerIntensity = 200
+	}
 	switch c.Direction {
 	case DirectionRightToLeft, DirectionLeftToRight, DirectionStraight, DirectionRandom:
 		return
@@ -148,9 +164,14 @@ func (c *Config) Clone() *Config {
 		MaxParticles:           c.MaxParticles,
 		RainSpeed:              c.RainSpeed,
 		RainEnabled:            c.RainEnabled,
+		Debug:                  c.Debug,
 		MusicReactive:          c.MusicReactive,
 		MusicReactiveIntensity: c.MusicReactiveIntensity,
+		RainVisualizer:         c.RainVisualizer,
 		CoverAnimation:         c.CoverAnimation,
+		MusicPlayerAnimation:   c.MusicPlayerAnimation,
+		MusicPlayerIntensity:   c.MusicPlayerIntensity,
+		MusicPlayerInvert:      c.MusicPlayerInvert,
 		Direction:              c.Direction,
 		Player:                 c.Player,
 	}

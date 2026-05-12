@@ -33,15 +33,20 @@ type ParticleSystem struct {
 	baseSpeed   float64
 	speedMul    float64
 	musicOn     bool
+	visualizer  bool
 	intensity   float64
 	enabled     bool
 
-	bassPhase   int
-	bassTimer   float64
-	prevLow     float64
-	energyMul   float64
-	silenced    bool
-	spawnPaused bool
+	lowEnergy    float64
+	midEnergy    float64
+	highEnergy   float64
+	bassPhase    int
+	bassTimer    float64
+	prevLow      float64
+	lastEnvelope float64
+	energyMul    float64
+	silenced     bool
+	spawnPaused  bool
 }
 
 // NewParticleSystem creates a new particle system
@@ -59,7 +64,8 @@ func NewParticleSystem(width, height int, cfg *settings.Config) *ParticleSystem 
 		direction:   direction,
 		baseSpeed:   float64(cfg.RainSpeed) / 100.0,
 		speedMul:    float64(cfg.RainSpeed) / 100.0,
-		musicOn:     cfg.MusicReactive,
+		musicOn:     cfg.MusicReactive || cfg.RainVisualizer,
+		visualizer:  cfg.RainVisualizer,
 		intensity:   float64(cfg.MusicReactiveIntensity) / 100.0,
 		enabled:     cfg.RainEnabled,
 	}

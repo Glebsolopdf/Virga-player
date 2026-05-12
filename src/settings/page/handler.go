@@ -101,6 +101,8 @@ func (p *Page) adjust(delta int) {
 			if p.Config.MaxParticles > 500 {
 				p.Config.MaxParticles = 500
 			}
+		case 2:
+			p.Config.Debug = !p.Config.Debug
 		}
 	case sectionRain:
 		switch p.Selected {
@@ -127,17 +129,31 @@ func (p *Page) adjust(delta int) {
 			if p.Config.MusicReactiveIntensity > 200 {
 				p.Config.MusicReactiveIntensity = 200
 			}
+		case 2:
+			p.Config.RainVisualizer = !p.Config.RainVisualizer
 		}
 	case sectionVisual:
 		switch p.Selected {
 		case 0:
 			p.Config.CoverAnimation = !p.Config.CoverAnimation
 		case 1:
+			p.Config.MusicPlayerAnimation = !p.Config.MusicPlayerAnimation
+		case 2:
+			p.Config.MusicPlayerIntensity += delta * 10
+			if p.Config.MusicPlayerIntensity < 20 {
+				p.Config.MusicPlayerIntensity = 20
+			}
+			if p.Config.MusicPlayerIntensity > 200 {
+				p.Config.MusicPlayerIntensity = 200
+			}
+		case 3:
+			p.Config.MusicPlayerInvert = !p.Config.MusicPlayerInvert
+		case 4:
 			op := settings.DirectionOptions()
 			index := p.directionIndex()
 			index = (index + delta + len(op)) % len(op)
 			p.Config.Direction = op[index]
-		case 2:
+		case 5:
 			p.Config.Player = !p.Config.Player
 		}
 	}

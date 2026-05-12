@@ -1,6 +1,7 @@
 package artwork
 
 import (
+	"math"
 	"virga-player/settings"
 
 	"github.com/gdamore/tcell/v2"
@@ -12,6 +13,8 @@ func (a *Artwork) renderTextOnly(screen tcell.Screen) {
 	w, h := screen.Size()
 	centerX := w / 2
 	centerY := h / 2
+	centerX += int(math.Round(a.RainOffsetX))
+	centerY += int(math.Round(a.RainOffsetY))
 	infoBlockH := 7
 
 	hasCover := a.getCoverImg() != nil
@@ -30,8 +33,6 @@ func (a *Artwork) renderTextOnly(screen tcell.Screen) {
 	if infoW > w/3 {
 		infoW = w / 3
 	}
-
-	a.ScrollWidth = infoW
 
 	coverInnerH := 10
 	coverInnerW := coverInnerH * 2
@@ -91,9 +92,9 @@ func (a *Artwork) renderTextOnly(screen tcell.Screen) {
 		a.drawImageInBox(screen, boxX, boxY, coverInnerW, coverInnerH)
 	}
 
-	a.drawCenteredOrScrollingText(screen, infoX, infoW, infoY, a.Title, theme.TrackTitle)
-	a.drawCenteredOrScrollingText(screen, infoX, infoW, infoY+1, a.Artist, theme.TrackArtist)
-	a.drawCenteredOrScrollingText(screen, infoX, infoW, infoY+2, a.Album, theme.TrackAlbum)
+	a.drawCenteredInArea(screen, infoX, infoW, infoY, a.Title, theme.TrackTitle)
+	a.drawCenteredInArea(screen, infoX, infoW, infoY+1, a.Artist, theme.TrackArtist)
+	a.drawCenteredInArea(screen, infoX, infoW, infoY+2, a.Album, theme.TrackAlbum)
 
 	barWidth := infoW + 6
 	if barWidth > w-10 {
@@ -111,35 +112,5 @@ func (a *Artwork) renderTextOnly(screen tcell.Screen) {
 		timeStr := formatTime(a.Elapsed) + " / --:--"
 		a.drawTimeline(screen, infoX+infoW/2, infoY+4, barWidth)
 		a.drawCenteredInArea(screen, infoX, infoW, infoY+6, timeStr, theme.TrackTime)
-	}
-}
-
-func (a *Artwork) drawCenteredOrScrollingText(screen tcell.Screen, x, w, y int, text string, color tcell.Color) {
-	runes := []rune(text)
-	if len(runes) <= w {
-		a.drawCenteredInArea(screen, x, w, y, text, color)
-		return
-	}
-
-	maxOffset := len(runes) - w
-	if maxOffset < 0 {
-		maxOffset = 0
-	}
-	if a.ScrollOffset > maxOffset {
-		a.ScrollOffset = maxOffset
-	}
-	if a.ScrollOffset < 0 {
-		a.ScrollOffset = 0
-	}
-
-	visible := runes[a.ScrollOffset:]
-	if len(visible) > w {
-		visible = visible[:w]
-	}
-
-	for i, r := range visible {
-		if x+i >= 0 {
-			a.drawText(screen, x+i, y, string([]rune{r}), color)
-		}
 	}
 }

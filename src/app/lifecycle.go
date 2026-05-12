@@ -4,10 +4,17 @@ import (
 	"time"
 
 	"virga-player/app/bootstrap"
+	"virga-player/debug"
 )
 
-func New() *App {
-	return &App{}
+func New(opts Options, dbg *debug.Manager) *App {
+	if dbg == nil {
+		dbg = debug.NewManager(opts.Debug, opts.Debug)
+	}
+	return &App{
+		debug:       dbg,
+		debugForced: opts.Debug,
+	}
 }
 
 func (a *App) Run() error {

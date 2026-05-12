@@ -38,13 +38,14 @@ type Artwork struct {
 	Pulse            float64
 	Blink            float64
 	LastEnvelope     float64
-	ScrollTimer      float64
-	ScrollOffset     int
-	ScrollDir        int
-	ScrollWidth      int
+	RainTimer        float64
+	RainOffsetX      float64
+	RainOffsetY      float64
+	RainResistance   float64
 	SixelData        []byte
 	mu               sync.RWMutex
 	loadStarted      bool
+	sixelBuilding    bool
 }
 
 // NewArtwork
@@ -112,12 +113,23 @@ func (a *Artwork) beginCoverLoad() {
 			return
 		}
 		a.computeAverageColor()
-		a.mu.Lock()
-		if DetectSixelSupport() && a.CoverImg != nil {
-			a.Mode = DisplaySixel
-		} else {
+		if DetectSixelSupport() {
+			if cached, ok := getCachedSixelData(a.ImagePath); ok {
+				a.mu.Lock()
+				a.SixelData = cached
+				a.Mode = DisplaySixel
+				a.mu.Unlock()
+				return
+			}
+			a.mu.Lock()
 			a.Mode = DisplayTextOnly
+			a.mu.Unlock()
+			a.prepareSixelDataAsync()
+			return
 		}
+
+		a.mu.Lock()
+		a.Mode = DisplayTextOnly
 		a.mu.Unlock()
 	}()
 }
@@ -155,13 +167,14 @@ func (a *Artwork) SetAnimationEnabled(enabled bool) {
 }
 
 func (a *Artwork) UpdateAnimation(dt, envelope float64) {
+	if dt < 0 {
+		dt = 0
+	}
+
 	if !a.AnimationEnabled {
 		a.Fade = 1
 		a.Pulse = 0
 		return
-	}
-	if dt < 0 {
-		dt = 0
 	}
 
 	if a.Fade < 1 {
@@ -171,15 +184,15 @@ func (a *Artwork) UpdateAnimation(dt, envelope float64) {
 		}
 	}
 	envelope = clampFloat(envelope, 0, 1)
-	burst := clampFloat((envelope-a.LastEnvelope)*3.0, 0, 1)
-	peak := clampFloat(envelope*0.65+burst*0.9, 0, 1)
-	targetPulse := math.Pow(peak, 0.65) * 0.96
-	attack := 1 - math.Exp(-6.0*dt)
-	release := 1 - math.Exp(-2.8*dt)
+	burst := clampFloat((envelope-a.LastEnvelope)*4.2, 0, 1)
+	peak := clampFloat(envelope*0.70+burst*1.05, 0, 1)
+	targetPulse := math.Pow(peak, 0.55) * 0.98
+	attack := 1 - math.Exp(-9.0*dt)
+	release := 1 - math.Exp(-6.5*dt)
 
 	if targetPulse > a.Pulse {
-		if burst > 0.15 {
-			a.Pulse = a.Pulse*0.2 + targetPulse*0.8
+		if burst > 0.12 {
+			a.Pulse = a.Pulse*0.15 + targetPulse*0.85
 		} else {
 			a.Pulse += (targetPulse - a.Pulse) * attack
 		}
@@ -193,63 +206,36 @@ func (a *Artwork) UpdateAnimation(dt, envelope float64) {
 		a.Pulse = 0
 	}
 	a.LastEnvelope = envelope
-
-	a.updateTextScroll(dt)
 }
 
-func (a *Artwork) updateTextScroll(dt float64) {
-	if a.ScrollWidth <= 0 {
-		a.ScrollOffset = 0
-		return
+func (a *Artwork) UpdateRainResistance(dt, pressure float64, invert bool) {
+	if dt < 0 {
+		dt = 0
 	}
-
-	titleLen := len([]rune(a.Title))
-	artistLen := len([]rune(a.Artist))
-	albumLen := len([]rune(a.Album))
-	maxOffset := 0
-	if titleLen > a.ScrollWidth {
-		candidate := titleLen - a.ScrollWidth
-		if candidate > maxOffset {
-			maxOffset = candidate
-		}
+	pressure = clampFloat(pressure, 0, 1)
+	target := clampFloat(math.Pow(pressure, 0.75)*0.8+pressure*0.22, 0, 1)
+	rise := 1 - math.Exp(-5.2*dt)
+	fall := 1 - math.Exp(-1.2*dt)
+	alpha := rise
+	if target < a.RainResistance {
+		alpha = fall
 	}
-	if artistLen > a.ScrollWidth {
-		candidate := artistLen - a.ScrollWidth
-		if candidate > maxOffset {
-			maxOffset = candidate
-		}
+	a.RainResistance += (target - a.RainResistance) * clampFloat(alpha, 0, 1)
+	speedScale := 0.85 + pressure*1.4
+	if speedScale < 0.85 {
+		speedScale = 0.85
 	}
-	if albumLen > a.ScrollWidth {
-		candidate := albumLen - a.ScrollWidth
-		if candidate > maxOffset {
-			maxOffset = candidate
-		}
+	a.RainTimer += dt*speedScale + a.RainResistance*0.1 + pressure*0.15
+	amplitude := 3.6 + pressure*2.2
+	amplitudeY := 2.4 + pressure*1.6
+	offsetX := ((math.Sin(a.RainTimer*1.1) + math.Sin(a.RainTimer*0.4+1.3)) * 0.5) * a.RainResistance * amplitude
+	offsetY := ((math.Cos(a.RainTimer*0.85) + math.Cos(a.RainTimer*0.55+0.7)) * 0.5) * a.RainResistance * amplitudeY
+	if invert {
+		offsetX = -offsetX
+		offsetY = -offsetY
 	}
-
-	if maxOffset == 0 {
-		a.ScrollOffset = 0
-		return
-	}
-
-	if a.ScrollDir == 0 {
-		a.ScrollDir = 1
-	}
-
-	a.ScrollTimer += dt
-	const scrollInterval = 0.35
-	if a.ScrollTimer < scrollInterval {
-		return
-	}
-	a.ScrollTimer -= scrollInterval
-	a.ScrollOffset += a.ScrollDir
-
-	if a.ScrollOffset < 0 {
-		a.ScrollOffset = 0
-		a.ScrollDir = 1
-	} else if a.ScrollOffset > maxOffset {
-		a.ScrollOffset = maxOffset
-		a.ScrollDir = -1
-	}
+	a.RainOffsetX = offsetX
+	a.RainOffsetY = offsetY
 }
 
 // UpdateTrackInfo

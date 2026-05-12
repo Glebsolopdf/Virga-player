@@ -19,6 +19,7 @@ func (p *Page) sectionMenuItems() []menuItem {
 		return []menuItem{
 			{label: fmt.Sprintf("Frame rate: %d", p.Config.FPS), selectable: true},
 			{label: fmt.Sprintf("Max particles: %d", p.Config.MaxParticles), selectable: true},
+			{label: fmt.Sprintf("Debug mode: %v", p.Config.Debug), selectable: true},
 			{label: "Back", selectable: true},
 		}
 	case sectionRain:
@@ -31,11 +32,15 @@ func (p *Page) sectionMenuItems() []menuItem {
 		return []menuItem{
 			{label: fmt.Sprintf("Music reactive: %v", p.Config.MusicReactive), selectable: true},
 			{label: fmt.Sprintf("Reactive intensity: %d%%", p.Config.MusicReactiveIntensity), selectable: true},
+			{label: fmt.Sprintf("Rain visualizer: %v", p.Config.RainVisualizer), selectable: true},
 			{label: "Back", selectable: true},
 		}
 	case sectionVisual:
 		return []menuItem{
 			{label: fmt.Sprintf("Cover animation: %v", p.Config.CoverAnimation), selectable: true},
+			{label: fmt.Sprintf("Player music animation: %v", p.Config.MusicPlayerAnimation), selectable: true},
+			{label: fmt.Sprintf("Music intensity: %d%%", p.Config.MusicPlayerIntensity), selectable: true},
+			{label: fmt.Sprintf("Invert music motion: %v", p.Config.MusicPlayerInvert), selectable: true},
 			{label: fmt.Sprintf("Rain direction: %s", p.Config.Direction.Label()), selectable: true},
 			{label: fmt.Sprintf("Player mode: %v", p.Config.Player), selectable: true},
 			{label: "Back", selectable: true},

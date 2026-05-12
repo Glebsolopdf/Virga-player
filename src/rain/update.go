@@ -4,16 +4,15 @@ import "math/rand"
 
 func (ps *ParticleSystem) HitMessage(message string, startX, row int, hidden []bool) {
 	for _, p := range ps.particles {
-		for i := 0; i < p.Length; i++ {
-			dropY := int(p.Y) + i
-			if dropY != row {
-				continue
-			}
-			x := int(p.X)
-			idx := x - startX
-			if idx >= 0 && idx < len(message) && idx < len(hidden) && !hidden[idx] && message[idx] != ' ' {
-				hidden[idx] = true
-			}
+		x := int(p.X)
+		idx := x - startX
+		if idx < 0 || idx >= len(message) || idx >= len(hidden) || hidden[idx] || message[idx] == ' ' {
+			continue
+		}
+		topY := int(p.Y)
+		bottomY := topY + p.Length - 1
+		if row >= topY && row <= bottomY {
+			hidden[idx] = true
 		}
 	}
 }
@@ -29,6 +28,9 @@ func (ps *ParticleSystem) Update(dt float64) {
 			ps.speedMul = ps.baseSpeed
 			ps.spawnMul = 0
 		} else {
+			if ps.visualizer {
+				ps.spawnVisualizerDrops()
+			}
 			ps.speedMul = ps.baseSpeed * ps.energyMul
 		}
 	}
@@ -47,8 +49,9 @@ func (ps *ParticleSystem) Update(dt float64) {
 		}
 	}
 
-	alive := make([]Particle, 0, len(ps.particles))
-	for _, p := range ps.particles {
+	alive := ps.particles[:0]
+	for i := range ps.particles {
+		p := ps.particles[i]
 		p.Age += dt
 
 		if p.Age >= p.Delay {

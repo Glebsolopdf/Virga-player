@@ -10,6 +10,7 @@ func NewScreen() (tcell.Screen, error) {
 	if err := screen.Init(); err != nil {
 		return nil, err
 	}
+	screen.EnableMouse()
 	screen.SetStyle(tcell.StyleDefault.Background(tcell.ColorReset))
 	screen.Clear()
 	return screen, nil

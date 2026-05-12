@@ -30,8 +30,14 @@ func (a *App) closeSettings(save bool, deleteVirga bool) bool {
 
 	if save {
 		a.cfg = a.settingsPage.Config
+		if a.debugForced {
+			a.cfg.Debug = true
+		}
 		_ = settings.SaveConfig(a.cfg)
 		a.applyConfig()
+		if a.debug != nil {
+			a.debug.Infof("settings saved")
+		}
 	}
 	a.settingsOpen = false
 	return false
@@ -41,6 +47,10 @@ func (a *App) applyConfig() {
 	a.animEngine.Stop()
 	a.animEngine = animation.NewEngine(a.cfg.FPS)
 	a.particleSystem.ApplyConfig(a.cfg)
+	if a.debug != nil {
+		a.debug.SetEnabled(a.cfg.Debug)
+		a.debug.Debugf("config applied: fps=%d speed=%d debug=%v", a.cfg.FPS, a.cfg.RainSpeed, a.cfg.Debug)
+	}
 	a.setupAudioAnalyzer()
 
 	if a.cfg.Player && !a.state.PlayerEnabled {
@@ -49,7 +59,10 @@ func (a *App) applyConfig() {
 		a.state.PlayerEnabled = true
 
 		track := music.GetTrackInfo()
-		artworkPath := track.GetArtworkPath()
+		artworkPath := track.ArtworkPath
+		if artworkPath == "" {
+			artworkPath = track.GetArtworkPath()
+		}
 		a.state.Player.SetTrackInfoWithArtwork(
 			track.Title,
 			track.Artist,

@@ -18,11 +18,24 @@ func (a *App) initComponents() {
 	a.width, a.height = a.screen.Size()
 	cfg, firstRun, err := settings.LoadOrCreateConfig()
 	if err != nil {
+		if a.debug != nil {
+			a.debug.Errorf("config load failed, using defaults: %v", err)
+		}
 		cfg = settings.DefaultConfig()
+	}
+	if a.debugForced {
+		cfg.Debug = true
 	}
 	theme, _, themeErr := settings.LoadOrCreateTheme()
 	if themeErr != nil {
+		if a.debug != nil {
+			a.debug.Errorf("theme load failed, using default: %v", themeErr)
+		}
 		theme = settings.DefaultTheme()
+	}
+	if a.debug != nil {
+		a.debug.SetEnabled(cfg.Debug)
+		a.debug.Infof("config loaded: fps=%d particles=%d debug=%v", cfg.FPS, cfg.MaxParticles, cfg.Debug)
 	}
 	settings.SetCurrentTheme(theme)
 	aliasesReady := install.EnsureCommandAliases()
@@ -54,15 +67,24 @@ func (a *App) setupAudioAnalyzer() {
 		a.audioAnalyzer = nil
 	}
 
-	if !a.cfg.MusicReactive {
+	if !a.cfg.MusicReactive && !a.cfg.RainVisualizer {
 		a.particleSystem.ResetSpectrum()
+		if a.debug != nil {
+			a.debug.Debugf("audio analyzer disabled: music_reactive=false rain_visualizer=false")
+		}
 		return
 	}
 
 	analyzer, err := audio.NewAnalyzer()
 	if err != nil {
 		a.particleSystem.ResetSpectrum()
+		if a.debug != nil {
+			a.debug.Warnf("audio analyzer unavailable: %v", err)
+		}
 		return
 	}
 	a.audioAnalyzer = analyzer
+	if a.debug != nil {
+		a.debug.Infof("audio analyzer connected")
+	}
 }

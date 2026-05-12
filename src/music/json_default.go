@@ -19,6 +19,8 @@ func getJSONTrack() *TrackInfo {
 	}
 
 	if track.Title != "" && track.Title != "No Track" {
+		track.Source = "json"
+		track.ArtworkPath = track.GetArtworkPath()
 		return &track
 	}
 
@@ -27,11 +29,13 @@ func getJSONTrack() *TrackInfo {
 
 func getDefaultTrack() *TrackInfo {
 	return &TrackInfo{
-		Title:      "No Track Playing",
-		Artist:     "Start your music player",
-		Album:      "or update /tmp/virga-player/track.json",
-		Duration:   0,
-		Elapsed:    0,
-		ArtworkURL: "",
+		Title:       "No Track Playing",
+		Artist:      "Start your music player",
+		Album:       "or update /tmp/virga-player/track.json",
+		Duration:    0,
+		Elapsed:     0,
+		ArtworkURL:  "",
+		ArtworkPath: "",
+		Source:      "default",
 	}
 }
