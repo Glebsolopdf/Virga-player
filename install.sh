@@ -1,19 +1,52 @@
 #!/usr/bin/env bash
 set -euo pipefail
-[[ "$OSTYPE" == "linux-gnu"* ]] || { echo "Error: Only Linux is supported"; exit 1; }
-command -v pacman >/dev/null 2>&1 || { echo "Error: This script requires pacman (Arch Linux)"; exit 1; }
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SRC_DIR="$ROOT_DIR/src"
-BIN_NAME="virga"
-INSTALL_DEST="/usr/local/bin/$BIN_NAME"
-echo "==> Installing dependencies..."
-pacman -Syu --noconfirm --needed go git imagemagick
-if [[ ! -d "$SRC_DIR" ]]; then
-    echo "Error: Source directory $SRC_DIR not found."
-    exit 1
+
+BLUE='\033[0;34m'
+GREEN='\033[0;32m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+msg() { echo -e "${BLUE}${BOLD}::${NC} ${BOLD}$1${NC}"; }
+error() { echo -e "\033[0;31m${BOLD}Error:${NC} $1"; exit 1; }
+
+msg "Installing dependencies..."
+if [ -f /etc/arch-release ]; then
+    sudo pacman -Sy --noconfirm --needed go git imagemagick playerctl
+elif [ -f /etc/debian_version ]; then
+    sudo apt update && sudo apt install -y golang-go git imagemagick playerctl
+elif [ -f /etc/fedora-release ]; then
+    sudo dnf install -y golang git ImageMagick playerctl
+elif command -v xbps-install &> /dev/null; then
+    sudo xbps-install -Sy go git ImageMagick playerctl
+else
+    error "Unsupported distribution. Install dependencies manually."
 fi
-echo "==> Building $BIN_NAME..."
-go build -C "$SRC_DIR" -ldflags="-s -w" -o "$ROOT_DIR/$BIN_NAME" .
-echo "==> Installing to $INSTALL_DEST..."
-install -Dm755 "$ROOT_DIR/$BIN_NAME" "$INSTALL_DEST"
-echo "==> Done. Run with: $BIN_NAME"
+
+INSTALL_DIR="$HOME/Virga-player"
+
+if [[ -d ".git" && $(basename "$(pwd)") == "Virga-player" ]]; then
+    TARGET_DIR="$(pwd)"
+    msg "Running from current directory: $TARGET_DIR"
+else
+    if [[ ! -d "$INSTALL_DIR" ]]; then
+        msg "Cloning into $INSTALL_DIR..."
+        git clone https://github.com/Glebsolopdf/Virga-player.git "$INSTALL_DIR"
+    fi
+    TARGET_DIR="$INSTALL_DIR"
+    cd "$TARGET_DIR"
+fi
+
+if [[ -f "$TARGET_DIR/build.sh" ]]; then
+    msg "Building from $TARGET_DIR/build.sh..."
+    chmod +x "$TARGET_DIR/build.sh"
+    "$TARGET_DIR/build.sh"
+else
+    error "Security check failed: build.sh not found in $TARGET_DIR"
+fi
+
+echo -e "\n${GREEN}${BOLD}Done.${NC}"
+read -p "Run Virga-player now? (y/n) " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    ./virga-player
+fi
