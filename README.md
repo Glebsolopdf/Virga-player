@@ -75,14 +75,22 @@ Config is stored in `~/.config/virga-player/config.json`:
   "fps": 60,
   "max_particles": 220,
   "rain_speed": 100,
+  "pulse_speed": 100,
+  "pulse_mode": "rain",
   "rain_enabled": true,
   "music_reactive": false,
   "music_reactive_intensity": 100,
-  "cover_animation": false,
+  "rain_in_front_of_player": true,
   "direction": "random",
   "player": false
 }
 ```
+
+`rain_in_front_of_player` controls the layer order when player mode is enabled: `true` draws rain over the player, `false` keeps rain behind the player.
+
+`pulse_speed` controls the base rise/fade speed for pulse effects on both rain and cover artwork. Virga also adapts that speed to recent beat/transient timing in the current track, so fast songs tend to get shorter, quicker pulses while slower songs keep a longer pulse tail.
+
+`pulse_mode` controls where pulse is allowed to appear: `off`, `rain`, `cover`, or `all`.
 
 ### Theme
 
@@ -101,6 +109,29 @@ Example theme variables:
   --track-time: gray;
   --rain-head: white;
   --rain-tail: gray;
+  --rain-layer-very-near: white;
+  --rain-layer-near: lightcyan;
+  --rain-layer-mid: white;
+  --rain-layer-far: lightgray;
+  --rain-layer-very-far: darkgray;
+
+  --settings-title: white;
+  --settings-hint: gray;
+  --settings-text: white;
+  --settings-selected-fg: black;
+  --settings-selected-bg: white;
+
+  --timeline-char-left: '[';
+  --timeline-char-right: ']';
+  --timeline-char-played: '█';
+  --timeline-char-current: '▌';
+  --timeline-char-empty: '░';
+
+  --rain-char-body: '│';
+  --rain-char-head: '•';
+  --rain-char-left: '/';
+  --rain-char-right: '\\';
+  --artwork-char-block: '▀';
 }
 ```
 
