@@ -1,4 +1,4 @@
-<img src="for readme/prew.png" alt="Virga prew" style="max-width: 50%;" />
+![Virga prew](<for readme/prew.png>) 
 
 ![Go](https://img.shields.io/badge/Go-1.25+-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
