@@ -2,7 +2,6 @@ package app
 
 import (
 	"time"
-
 	"virga-player/animation"
 	"virga-player/app/install"
 	"virga-player/app/player"
@@ -18,9 +17,8 @@ func (a *App) openSettings() {
 
 func (a *App) closeSettings(save bool, deleteVirga bool) bool {
 	if deleteVirga {
+		a.uninstallInProgress.Store(true)
 		_ = install.RemoveVirgaInstallation()
-		a.cfg = settings.DefaultConfig()
-		a.applyConfig()
 		a.state.Message.SetText("Virga removed. Restart your shell or run 'hash -r' to refresh command lookup.", a.width, a.height)
 		a.state.Message.Persistent = true
 		a.settingsOpen = false
@@ -49,9 +47,13 @@ func (a *App) applyConfig() {
 	a.particleSystem.ApplyConfig(a.cfg)
 	if a.debug != nil {
 		a.debug.SetEnabled(a.cfg.Debug)
-		a.debug.Debugf("config applied: fps=%d speed=%d debug=%v", a.cfg.FPS, a.cfg.RainSpeed, a.cfg.Debug)
+		a.debug.Debugf("config applied: fps=%d speed=%d debug=%v lyrics_visible=%v lyrics_mode=%s lyrics_auto_save_after=%ds", a.cfg.FPS, a.cfg.RainSpeed, a.cfg.Debug, a.cfg.LyricsVisible, a.cfg.LyricsMode, a.cfg.LyricsAutoSaveAfterSec)
 	}
+	a.resetLyricsManager()
 	a.setupAudioAnalyzer()
+	if !a.cfg.LyricsVisible {
+		a.clearLyricsState("hidden")
+	}
 
 	if a.cfg.Player && !a.state.PlayerEnabled {
 		a.state.Player = player.New(a.width/2, a.height/2)
@@ -71,6 +73,7 @@ func (a *App) applyConfig() {
 			track.Elapsed,
 			artworkPath,
 		)
+		a.state.Player.SetSyncedLyrics(a.currentLyrics)
 		a.state.Player.ArtworkURL = track.ArtworkURL
 	} else if !a.cfg.Player && a.state.PlayerEnabled {
 		a.state.PlayerEnabled = false

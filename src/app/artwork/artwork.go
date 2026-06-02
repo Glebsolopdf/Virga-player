@@ -31,6 +31,8 @@ type Artwork struct {
 	Title            string
 	Artist           string
 	Album            string
+	Lyrics           []lyricCue
+	lyricsRaw        string
 	Duration         int
 	Elapsed          int
 	AnimationEnabled bool
@@ -50,6 +52,11 @@ type Artwork struct {
 	adaptiveSpeed    float64
 	pulseActive      bool
 	pulseAttacking   bool
+	lyricsParseToken uint64
+	sixelRendered    bool
+	lastSixelX       int
+	lastSixelY       int
+	lastSixelSize    int
 	mu               sync.RWMutex
 	loadStarted      bool
 	sixelBuilding    bool
@@ -62,6 +69,7 @@ type artworkSnapshot struct {
 	title            string
 	artist           string
 	album            string
+	lyrics           []lyricCue
 	duration         int
 	elapsed          int
 	animationEnabled bool

@@ -15,6 +15,9 @@ func (a *App) handleEvent(event tcell.Event) bool {
 			}
 			return false
 		}
+		if a.tryHandleLyricsPromptConfirm(ev.Rune(), ev.Key() == tcell.KeyEnter) {
+			return false
+		}
 		if ev.Rune() == 's' {
 			a.openSettings()
 			return false

@@ -1,12 +1,15 @@
 package app
 
 import (
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"virga-player/animation"
 	"virga-player/app/state"
 	"virga-player/audio"
 	debugmgr "virga-player/debug/manager"
+	"virga-player/lyricsearch"
 	"virga-player/rain"
 	"virga-player/renderer"
 	"virga-player/settings"
@@ -34,6 +37,31 @@ type App struct {
 	audioAnalyzer *audio.Analyzer
 	debug         *debugmgr.Manager
 	debugForced   bool
+
+	lyricsResults    chan lyricFetchResult
+	lyricsRequestKey string
+	lyricsResultKey  string
+	currentLyrics    string
+	lyricsManager    *lyricsearch.LyricsManager
+
+	timelineTrackKey      string
+	timelineFallbackFrom  time.Time
+	timelineLastElapsed   int
+	timelineUsingFallback bool
+
+	lyricsPromptMu sync.Mutex
+	lyricsPrompt   *lyricsPromptState
+
+	lyricsDoubleConfirm atomic.Bool
+	uninstallInProgress atomic.Bool
+}
+
+type lyricsPromptState struct {
+	trackKey       string
+	message        string
+	showUntil      time.Time
+	firstConfirmAt time.Time
+	resultCh       chan bool
 }
 
 type Options struct {

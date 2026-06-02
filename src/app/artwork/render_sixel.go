@@ -3,7 +3,6 @@ package artwork
 import (
 	"fmt"
 	"image"
-	"math"
 	"os"
 
 	sixeldata "virga-player/app/artwork/sixeldata"
@@ -12,30 +11,51 @@ import (
 	"github.com/gdamore/tcell/v2"
 )
 
-func (a *Artwork) renderSixel(screen tcell.Screen, state artworkSnapshot) {
+const (
+	sixelImageWidth      = 40
+	sixelImageHeight     = 24
+	sixelTextWidth       = 40
+	sixelTitleOffsetY    = 15
+	sixelArtistOffsetY   = 17
+	sixelAlbumOffsetY    = 19
+	sixelTimelineOffsetY = 21
+	sixelTimeOffsetY     = 23
+	sixelPlayerBodyH     = 24
+)
+
+func (a *Artwork) renderSixel(screen tcell.Screen, state artworkSnapshot, drawInfo, drawLyrics bool) {
 	theme := settings.CurrentTheme()
 	if state.coverImg == nil {
-		a.renderTextOnly(screen, state)
+		a.renderTextOnly(screen, state, drawInfo, drawLyrics)
 		return
 	}
 
 	hasSixel := len(state.sixelData) > 0
 	if !hasSixel {
-		a.prepareSixelDataAsync()
-		a.renderTextOnly(screen, state)
+		if drawInfo {
+			a.prepareSixelDataAsync()
+		}
+		a.renderTextOnly(screen, state, drawInfo, drawLyrics)
 		return
 	}
 
-	screen.SetStyle(tcell.StyleDefault.Background(theme.Background).Foreground(theme.TrackTitle))
+	if drawInfo {
+		screen.SetStyle(tcell.StyleDefault.Background(theme.Background).Foreground(theme.TrackTitle))
+	}
 
 	w, h := screen.Size()
 	centerX := w / 2
 	centerY := h / 2
-	centerX += int(math.Round(state.rainOffsetX))
-	centerY += int(math.Round(state.rainOffsetY))
+	lyricsLines := lyricDisplayWindow(state.lyrics, state.elapsed, state.pulse, theme)
+	if !drawLyrics {
+		lyricsLines = nil
+	}
+	lyricsGap := lyricsVerticalGap(lyricsLines)
+	totalH := sixelPlayerBodyH + lyricsGap + len(lyricsLines)
+	blockTop := centerY - totalH/2
 
-	imgY := centerY - 12
-	imgX := centerX - 20
+	imgY := blockTop
+	imgX := centerX - sixelImageWidth/2
 	if imgX < 0 {
 		imgX = 0
 	}
@@ -43,21 +63,38 @@ func (a *Artwork) renderSixel(screen tcell.Screen, state artworkSnapshot) {
 		imgY = 0
 	}
 
-	fmt.Printf("\x1B[%d;%dH", imgY+1, imgX+1)
-	_, _ = os.Stdout.Write(state.sixelData)
+	if drawInfo && a.shouldRenderSixelAt(imgX, imgY, state.sixelData) {
+		fmt.Printf("\x1B[%d;%dH", imgY+1, imgX+1)
+		_, _ = os.Stdout.Write(state.sixelData)
+	}
 
-	textWidth := 40
+	textWidth := sixelTextWidth
 	if textWidth > w-10 {
 		textWidth = w - 10
 	}
-	a.drawCenteredInArea(screen, centerX-textWidth/2, textWidth, centerY+3, state.title, theme.TrackTitle)
-	a.drawCenteredInArea(screen, centerX-textWidth/2, textWidth, centerY+5, state.artist, theme.TrackArtist)
-	a.drawCenteredInArea(screen, centerX-textWidth/2, textWidth, centerY+7, state.album, theme.TrackAlbum)
+	textStartX := centerX - textWidth/2
+	if drawInfo {
+		a.drawCenteredInArea(screen, textStartX, textWidth, blockTop+sixelTitleOffsetY, state.title, theme.TrackTitle)
+		a.drawCenteredInArea(screen, textStartX, textWidth, blockTop+sixelArtistOffsetY, state.artist, theme.TrackArtist)
+		a.drawCenteredInArea(screen, textStartX, textWidth, blockTop+sixelAlbumOffsetY, state.album, theme.TrackAlbum)
+	}
 
-	if state.duration > 0 {
-		a.drawTimeline(screen, centerX, centerY+9, 28, state.elapsed, state.duration)
+	lyricsY := blockTop + sixelPlayerBodyH + lyricsGap
+	if drawInfo {
+		a.drawTimeline(screen, centerX, blockTop+sixelTimelineOffsetY, 28, state.elapsed, state.duration)
 		timeStr := formatTime(state.elapsed) + " / " + formatTime(state.duration)
-		a.drawText(screen, centerX-len(timeStr)/2, centerY+11, timeStr, theme.TrackTime)
+		if state.duration <= 0 {
+			timeStr = "00:00 / 00:00"
+		}
+		a.drawText(screen, centerX-len(timeStr)/2, blockTop+sixelTimeOffsetY, timeStr, theme.TrackTime)
+	}
+
+	if len(lyricsLines) > 0 {
+		lyricsMaxWidth := w - 2
+		if lyricsMaxWidth < 16 {
+			lyricsMaxWidth = 16
+		}
+		a.drawLyricsBlock(screen, centerX, lyricsMaxWidth, lyricsY, lyricsLines, state.pulse, theme)
 	}
 }
 

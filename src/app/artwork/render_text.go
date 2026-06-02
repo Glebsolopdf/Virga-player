@@ -8,13 +8,18 @@ import (
 )
 
 // renderTextOnly
-func (a *Artwork) renderTextOnly(screen tcell.Screen, state artworkSnapshot) {
+func (a *Artwork) renderTextOnly(screen tcell.Screen, state artworkSnapshot, drawInfo, drawLyrics bool) {
 	theme := settings.CurrentTheme()
 	w, h := screen.Size()
 	centerX := w / 2
 	centerY := h / 2
 	centerX += int(math.Round(state.rainOffsetX))
 	centerY += int(math.Round(state.rainOffsetY))
+	lyricsLines := lyricDisplayWindow(state.lyrics, state.elapsed, state.pulse, theme)
+	if !drawLyrics {
+		lyricsLines = nil
+	}
+	lyricsGap := lyricsVerticalGap(lyricsLines)
 	infoBlockH := 7
 
 	hasCover := state.coverImg != nil
@@ -73,28 +78,32 @@ func (a *Artwork) renderTextOnly(screen tcell.Screen, state artworkSnapshot) {
 		hasCover = false
 	}
 
-	contentH := infoBlockH
-	if hasCover && boxH > contentH {
-		contentH = boxH
+	bodyH := infoBlockH
+	if hasCover && boxH > bodyH {
+		bodyH = boxH
 	}
-	contentY := centerY - contentH/2
-	boxY := contentY
+	totalH := bodyH + lyricsGap + len(lyricsLines)
+	contentY := centerY - totalH/2
+	boxY := contentY + (bodyH-boxH)/2
 	boxX := 0
 	infoX := centerX - infoW/2
-	infoY := centerY - infoBlockH/2
+	infoY := contentY + (bodyH-infoBlockH)/2
 
 	if hasCover {
 		totalW := boxW + infoGap + infoW
 		boxX = centerX - totalW/2
 		infoX = boxX + boxW + infoGap
-		infoY = boxY + (boxH-infoBlockH)/2
 
-		a.drawImageInBox(screen, boxX, boxY, coverInnerW, coverInnerH, state.coverImg, state.fade, state.pulse)
+		if drawInfo {
+			a.drawImageInBox(screen, boxX, boxY, coverInnerW, coverInnerH, state.coverImg, state.fade, state.pulse)
+		}
 	}
 
-	a.drawCenteredInArea(screen, infoX, infoW, infoY, state.title, theme.TrackTitle)
-	a.drawCenteredInArea(screen, infoX, infoW, infoY+1, state.artist, theme.TrackArtist)
-	a.drawCenteredInArea(screen, infoX, infoW, infoY+2, state.album, theme.TrackAlbum)
+	if drawInfo {
+		a.drawCenteredInArea(screen, infoX, infoW, infoY, state.title, theme.TrackTitle)
+		a.drawCenteredInArea(screen, infoX, infoW, infoY+1, state.artist, theme.TrackArtist)
+		a.drawCenteredInArea(screen, infoX, infoW, infoY+2, state.album, theme.TrackAlbum)
+	}
 
 	barWidth := infoW + 6
 	if barWidth > w-10 {
@@ -103,14 +112,21 @@ func (a *Artwork) renderTextOnly(screen tcell.Screen, state artworkSnapshot) {
 	if barWidth < 16 {
 		barWidth = 16
 	}
-	if state.duration > 0 {
+	if drawInfo {
 		barCenterX := infoX + infoW/2
 		a.drawTimeline(screen, barCenterX, infoY+4, barWidth, state.elapsed, state.duration)
 		timeStr := formatTime(state.elapsed) + " / " + formatTime(state.duration)
+		if state.duration <= 0 {
+			timeStr = "00:00 / 00:00"
+		}
 		a.drawCenteredInArea(screen, infoX, infoW, infoY+6, timeStr, theme.TrackTime)
-	} else {
-		timeStr := formatTime(state.elapsed) + " / --:--"
-		a.drawTimeline(screen, infoX+infoW/2, infoY+4, barWidth, state.elapsed, state.duration)
-		a.drawCenteredInArea(screen, infoX, infoW, infoY+6, timeStr, theme.TrackTime)
+	}
+
+	if len(lyricsLines) > 0 {
+		lyricsMaxWidth := w - 2
+		if lyricsMaxWidth < 16 {
+			lyricsMaxWidth = 16
+		}
+		a.drawLyricsBlock(screen, centerX, lyricsMaxWidth, contentY+bodyH+lyricsGap, lyricsLines, state.pulse, theme)
 	}
 }

@@ -13,6 +13,7 @@ func (a *Artwork) snapshot() artworkSnapshot {
 		title:            a.Title,
 		artist:           a.Artist,
 		album:            a.Album,
+		lyrics:           a.Lyrics,
 		duration:         a.Duration,
 		elapsed:          a.Elapsed,
 		animationEnabled: a.AnimationEnabled,

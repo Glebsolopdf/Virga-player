@@ -45,8 +45,12 @@ func (a *App) onTick(dt float64) {
 		a.particleSystem.ResetSpectrum()
 	}
 
+	a.processLyricsResults()
+	track := music.GetTrackInfo()
+	track.Elapsed = a.effectiveTrackElapsed(track, time.Now())
+	a.syncLyrics(track)
+
 	if a.state.PlayerEnabled && a.state.Player != nil {
-		track := music.GetTrackInfo()
 		artworkPath := track.ArtworkPath
 		if artworkPath == "" && a.state.Player.ArtworkPath != "" {
 			artworkPath = a.state.Player.ArtworkPath
@@ -126,6 +130,11 @@ func (a *App) onTick(dt float64) {
 		return
 	}
 
+	footerPromptText, footerPromptVisible := a.lyricsPromptBanner(time.Now())
+	if !footerPromptVisible {
+		footerPromptText = ""
+	}
+
 	frame.NewFrame(
 		a.screen,
 		a.renderEngine,
@@ -137,6 +146,8 @@ func (a *App) onTick(dt float64) {
 		a.debug,
 		a.cfg.MaxParticles,
 		a.cfg.FPS,
-		a.cfg.RainInFrontOfPlayer,
+		a.cfg.PlayerRainLayer,
+		a.cfg.LyricsRainLayer,
+		footerPromptText,
 	).Render(dt)
 }

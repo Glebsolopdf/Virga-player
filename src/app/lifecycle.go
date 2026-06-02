@@ -12,8 +12,9 @@ func New(opts Options, dbg *debugmgr.Manager) *App {
 		dbg = debugmgr.NewManager(opts.Debug, opts.Debug)
 	}
 	return &App{
-		debug:       dbg,
-		debugForced: opts.Debug,
+		debug:         dbg,
+		debugForced:   opts.Debug,
+		lyricsResults: make(chan lyricFetchResult, 4),
 	}
 }
 
@@ -28,6 +29,7 @@ func (a *App) Run() error {
 		if a.audioAnalyzer != nil {
 			a.audioAnalyzer.Stop()
 		}
+		a.closeLyricsManager()
 	}()
 
 	a.initComponents()

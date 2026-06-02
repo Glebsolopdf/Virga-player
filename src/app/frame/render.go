@@ -24,26 +24,53 @@ func (f Frame) Render(dt float64) {
 	if !f.PlayerEnabled && f.MessageErasable {
 		f.ParticleSystem.HitMessage(f.Message.Text, f.Message.X, f.Message.Y, f.Message.Hidden)
 	}
-	if f.PlayerEnabled && f.Player != nil && !f.RainInFront {
-		f.ParticleSystem.Draw(f.Screen)
-		f.renderPlayer()
+	if f.PlayerEnabled && f.Player != nil {
+		f.renderPlayerScene()
 	} else {
-		if f.PlayerEnabled && f.Player != nil {
-			f.renderPlayer()
-		}
 		f.ParticleSystem.Draw(f.Screen)
 	}
 	if f.Debug != nil {
 		f.Debug.DrawOverlay(f.Screen)
 	}
+	if f.FooterPromptText != "" {
+		_, h := f.Screen.Size()
+		if h > 0 {
+			theme := settings.CurrentTheme()
+			f.Renderer.DrawTextCentered(f.Screen, h-1, f.FooterPromptText, theme.SettingsHint, theme.Background)
+		}
+	}
 
 	f.Screen.Show()
 }
 
-func (f Frame) renderPlayer() {
+func (f Frame) renderPlayerScene() {
+	f.renderStage(settings.RainLayerBehind)
+	f.ParticleSystem.DrawBackLayers(f.Screen)
+	f.renderStage(settings.RainLayerBetween)
+	f.ParticleSystem.DrawFrontLayers(f.Screen)
+	f.renderStage(settings.RainLayerFront)
+}
+
+func (f Frame) renderStage(mode settings.RainLayerMode) {
+	if f.PlayerRainLayer == mode {
+		f.renderPlayerInfo()
+	}
+	if f.LyricsRainLayer == mode {
+		f.renderPlayerLyricsOverlay()
+	}
+}
+
+func (f Frame) renderPlayerInfo() {
 	p := f.Player
 
 	if p.Artwork != nil {
-		p.Artwork.Render(f.Screen)
+		p.Artwork.RenderInfoOnly(f.Screen)
+	}
+}
+
+func (f Frame) renderPlayerLyricsOverlay() {
+	p := f.Player
+	if p.Artwork != nil {
+		p.Artwork.RenderLyricsOverlay(f.Screen)
 	}
 }

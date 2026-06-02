@@ -9,7 +9,10 @@ import (
 
 func (a *Artwork) drawTimeline(screen tcell.Screen, centerX, y, width int, elapsed, duration int) {
 	theme := settings.CurrentTheme()
-	w, _ := screen.Size()
+	w, h := screen.Size()
+	if y < 0 || y >= h {
+		return
+	}
 
 	barWidth := width
 	if barWidth > w-10 {
@@ -65,31 +68,65 @@ func (a *Artwork) truncateText(text string, maxLen int) string {
 	if maxLen < 1 {
 		return ""
 	}
-	if len(text) <= maxLen {
+	runes := []rune(text)
+	if len(runes) <= maxLen {
 		return text
 	}
 	if maxLen < 3 {
-		return text[:maxLen]
+		return string(runes[:maxLen])
 	}
-	return text[:maxLen-3] + "..."
+	return string(runes[:maxLen-3]) + "..."
 }
 
 func (a *Artwork) drawCenteredInArea(screen tcell.Screen, x, w, y int, text string, color tcell.Color) {
 	truncated := a.truncateText(text, w)
-	tx := x + (w-len(truncated))/2
+	tx := x + (w-len([]rune(truncated)))/2
 	a.drawText(screen, tx, y, truncated, color)
 }
 
 func (a *Artwork) drawText(screen tcell.Screen, x, y int, text string, color tcell.Color) {
-	w, _ := screen.Size()
-	for i, ch := range text {
-		posX := x + i
-		if posX >= 0 && posX < w && y >= 0 {
+	w, h := screen.Size()
+	if y < 0 || y >= h {
+		return
+	}
+	for offset, ch := range []rune(text) {
+		posX := x + offset
+		if posX >= 0 && posX < w {
 			screen.SetContent(posX, y, ch, nil, tcell.Style{}.Foreground(color))
 		}
 		if posX >= w {
 			break
 		}
+	}
+}
+
+func (a *Artwork) drawTextWithBackground(screen tcell.Screen, x, y int, text string, foreground, background tcell.Color) {
+	w, h := screen.Size()
+	if y < 0 || y >= h {
+		return
+	}
+	style := tcell.StyleDefault.Foreground(foreground).Background(background)
+	for offset, ch := range []rune(text) {
+		posX := x + offset
+		if posX >= 0 && posX < w {
+			screen.SetContent(posX, y, ch, nil, style)
+		}
+		if posX >= w {
+			break
+		}
+	}
+}
+
+func (a *Artwork) fillLine(screen tcell.Screen, x, y, width int, background tcell.Color) {
+	w, h := screen.Size()
+	if y < 0 || y >= h || width <= 0 {
+		return
+	}
+	startX := maxInt(0, x)
+	endX := minInt(w, x+width)
+	style := tcell.StyleDefault.Background(background).Foreground(background)
+	for posX := startX; posX < endX; posX++ {
+		screen.SetContent(posX, y, ' ', nil, style)
 	}
 }
 

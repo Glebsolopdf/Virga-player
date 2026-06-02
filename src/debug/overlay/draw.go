@@ -8,8 +8,8 @@ import (
 
 func DrawText(screen tcell.Screen, x, y int, text string, fg, bg tcell.Color) {
 	style := tcell.StyleDefault.Foreground(fg).Background(bg)
-	for i, ch := range text {
-		screen.SetContent(x+i, y, ch, nil, style)
+	for offset, ch := range []rune(text) {
+		screen.SetContent(x+offset, y, ch, nil, style)
 	}
 }
 

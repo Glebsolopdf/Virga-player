@@ -3,40 +3,52 @@ package player
 import "virga-player/app/artwork"
 
 type Player struct {
-	Title       string
-	Artist      string
-	Album       string
-	Duration    int
-	Elapsed     int
-	CoverX      int
-	CoverY      int
-	CoverW      int
-	CoverH      int
-	TextX       int
-	TextY       int
-	Artwork     *artwork.Artwork
-	ArtworkPath string
-	ArtworkURL  string
+	Title        string
+	Artist       string
+	Album        string
+	Duration     int
+	Elapsed      int
+	CoverX       int
+	CoverY       int
+	CoverW       int
+	CoverH       int
+	TextX        int
+	TextY        int
+	Artwork      *artwork.Artwork
+	ArtworkPath  string
+	ArtworkURL   string
+	SyncedLyrics string
 }
 
 func New(centerX, centerY int) *Player {
 	art := artwork.NewArtwork("", "Track Title", "Artist Name", "Album", 180, 0)
 
 	return &Player{
-		Title:       "Track Title",
-		Artist:      "Artist Name",
-		Album:       "Album",
-		Duration:    180,
-		Elapsed:     0,
-		CoverX:      centerX - 20,
-		CoverY:      centerY - 5,
-		CoverW:      16,
-		CoverH:      10,
-		TextX:       centerX + 5,
-		TextY:       centerY - 3,
-		Artwork:     art,
-		ArtworkPath: "",
-		ArtworkURL:  "",
+		Title:        "Track Title",
+		Artist:       "Artist Name",
+		Album:        "Album",
+		Duration:     180,
+		Elapsed:      0,
+		CoverX:       centerX - 20,
+		CoverY:       centerY - 5,
+		CoverW:       16,
+		CoverH:       10,
+		TextX:        centerX + 5,
+		TextY:        centerY - 3,
+		Artwork:      art,
+		ArtworkPath:  "",
+		ArtworkURL:   "",
+		SyncedLyrics: "",
+	}
+}
+
+func (p *Player) SetSyncedLyrics(lyrics string) {
+	if p.SyncedLyrics == lyrics {
+		return
+	}
+	p.SyncedLyrics = lyrics
+	if p.Artwork != nil {
+		p.Artwork.SetSyncedLyrics(lyrics)
 	}
 }
 
@@ -65,23 +77,27 @@ func (p *Player) SetTrackInfoWithArtwork(title, artist, album string, durationSe
 	if p.Artwork == nil {
 		p.ArtworkPath = artworkPath
 		p.Artwork = artwork.NewArtwork(artworkPath, title, artist, album, durationSec, elapsedSec)
+		p.Artwork.SetSyncedLyrics(p.SyncedLyrics)
 		return
 	}
 
 	if artworkPath != "" && p.ArtworkPath != artworkPath {
 		p.ArtworkPath = artworkPath
 		p.Artwork = artwork.NewArtwork(artworkPath, title, artist, album, durationSec, elapsedSec)
+		p.Artwork.SetSyncedLyrics(p.SyncedLyrics)
 		return
 	}
 
 	if trackChanged && artworkPath == "" {
 		p.ArtworkPath = ""
 		p.Artwork = artwork.NewArtwork("", title, artist, album, durationSec, elapsedSec)
+		p.Artwork.SetSyncedLyrics(p.SyncedLyrics)
 		return
 	}
 
 	if p.Artwork != nil {
 		p.Artwork.UpdateTrackInfo(title, artist, album, durationSec, p.Elapsed)
+		p.Artwork.SetSyncedLyrics(p.SyncedLyrics)
 	}
 }
 

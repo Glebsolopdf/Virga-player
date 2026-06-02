@@ -35,8 +35,9 @@ func (a *App) initComponents() {
 	}
 	if a.debug != nil {
 		a.debug.SetEnabled(cfg.Debug)
-		a.debug.Infof("config loaded: fps=%d particles=%d debug=%v", cfg.FPS, cfg.MaxParticles, cfg.Debug)
+		a.debug.Infof("config loaded: fps=%d particles=%d debug=%v lyrics_visible=%v lyrics_mode=%s lyrics_auto_save_after=%ds", cfg.FPS, cfg.MaxParticles, cfg.Debug, cfg.LyricsVisible, cfg.LyricsMode, cfg.LyricsAutoSaveAfterSec)
 	}
+	a.cfg = cfg
 	settings.SetCurrentTheme(theme)
 	aliasesReady := install.EnsureCommandAliases()
 	messageText := defaultStatusMessage
@@ -48,7 +49,7 @@ func (a *App) initComponents() {
 		}
 		nextMessageText = defaultStatusMessage
 	}
-	a.cfg = cfg
+	a.resetLyricsManager()
 	a.particleSystem = rain.NewParticleSystem(a.width, a.height, a.cfg)
 	a.setupAudioAnalyzer()
 	a.animEngine = animation.NewEngine(a.cfg.FPS)
