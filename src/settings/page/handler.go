@@ -93,5 +93,7 @@ func (p *Page) adjust(delta int) {
 		p.Modified = pagecontrols.Audio(p.Config, p.Selected, delta) || p.Modified
 	case sectionVisual:
 		p.Modified = pagecontrols.Visual(p.Config, p.Selected, delta) || p.Modified
+	case sectionLyrics:
+		p.Modified = pagecontrols.Lyrics(p.Config, p.Selected, delta) || p.Modified
 	}
 }

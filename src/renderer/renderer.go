@@ -1,6 +1,8 @@
 package renderer
 
 import (
+	"unicode/utf8"
+
 	"github.com/gdamore/tcell/v2"
 )
 
@@ -22,24 +24,24 @@ func (r *Renderer) DrawRune(x, y int, ch rune, foreground, background tcell.Colo
 
 func (r *Renderer) DrawText(screen tcell.Screen, x, y int, text string, foreground, background tcell.Color) {
 	style := tcell.StyleDefault.Foreground(foreground).Background(background)
-	for i, ch := range text {
-		screen.SetContent(x+i, y, ch, nil, style)
+	for offset, ch := range []rune(text) {
+		screen.SetContent(x+offset, y, ch, nil, style)
 	}
 }
 
 func (r *Renderer) DrawTextMasked(screen tcell.Screen, x, y int, text string, hidden []bool, foreground, background tcell.Color) {
 	style := tcell.StyleDefault.Foreground(foreground).Background(background)
-	for i, ch := range text {
-		if i < len(hidden) && hidden[i] {
+	for offset, ch := range []rune(text) {
+		if offset < len(hidden) && hidden[offset] {
 			continue
 		}
-		screen.SetContent(x+i, y, ch, nil, style)
+		screen.SetContent(x+offset, y, ch, nil, style)
 	}
 }
 
 func (r *Renderer) DrawTextCentered(screen tcell.Screen, y int, text string, foreground, background tcell.Color) {
 	width, _ := r.screen.Size()
-	x := (width - len(text)) / 2
+	x := (width - utf8.RuneCountInString(text)) / 2
 	if x < 0 {
 		x = 0
 	}

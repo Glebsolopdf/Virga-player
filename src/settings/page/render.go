@@ -21,25 +21,54 @@ func (p *Page) Render(screen tcell.Screen, renderer *renderer.Renderer, width, h
 	renderer.DrawTextCentered(screen, 2, title, theme.SettingsTitle, theme.Background)
 
 	subtitle := "Use arrows to select a category and Enter to open it"
-	if p.Section != sectionNone {
+	switch p.Section {
+	case sectionNone:
+		// keep default subtitle
+	default:
 		subtitle = "Use Left/Right to change values, Enter to save and exit, Esc to go back"
 	}
 	renderer.DrawTextCentered(screen, 4, subtitle, theme.SettingsHint, theme.Background)
 
-	items := p.menuItems()
-	startY := 8
-	for i, item := range items {
-		fg := theme.SettingsText
-		bg := theme.Background
-		if i == p.Selected {
-			fg = theme.SettingsSelectedFg
-			bg = theme.SettingsSelectedBg
+	if p.Section == sectionNone {
+		items := p.menuItems()
+		startY := 8
+		for i, item := range items {
+			fg := theme.SettingsText
+			bg := theme.Background
+			if !item.selectable {
+				fg = theme.SettingsHint
+			}
+			if i == p.Selected {
+				fg = theme.SettingsSelectedFg
+				bg = theme.SettingsSelectedBg
+			}
+			renderer.DrawTextCentered(screen, startY+i*2, item.label, fg, bg)
 		}
-		renderer.DrawText(screen, 6, startY+i*2, item.label, fg, bg)
+	} else {
+		items := p.sectionMenuItems()
+		startY := 8
+		for i, item := range items {
+			fg := theme.SettingsText
+			bg := theme.Background
+			if !item.selectable {
+				fg = theme.SettingsHint
+			}
+			if i == p.Selected {
+				fg = theme.SettingsSelectedFg
+				bg = theme.SettingsSelectedBg
+			}
+			renderer.DrawTextCentered(screen, startY+i*2, item.label, fg, bg)
+		}
+	}
+
+	if p.Section == sectionNone {
+		dir := settings.ConfigDirPath()
+		renderer.DrawTextCentered(screen, height-6, fmt.Sprintf("Player directory: %s", dir), theme.SettingsHint, theme.Background)
 	}
 
 	helpText := "Esc: back/cancel  |  s: save and exit"
-	if p.Section == sectionNone {
+	switch p.Section {
+	case sectionNone:
 		helpText = "Esc: cancel and exit  |  s: save and exit"
 	}
 	if p.Config.Debug {

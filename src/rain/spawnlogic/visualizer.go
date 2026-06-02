@@ -81,9 +81,10 @@ func PlanMessageSpawns(state State, startX, row int, message string, hidden []bo
 		return nil, nil
 	}
 
+	messageRunes := []rune(message)
 	plans := make([]ParticlePlan, 0, remaining)
 	hiddenIndices := make([]int, 0, remaining)
-	for i, ch := range message {
+	for i, ch := range messageRunes {
 		if len(plans) >= remaining {
 			break
 		}

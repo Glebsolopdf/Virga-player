@@ -7,11 +7,17 @@ import (
 	"virga-player/rain/separating_frequencies"
 )
 
+const (
+	maxRainMotionStep = 1.0 / 30.0
+	maxRainSpawnStep  = 1.0 / 45.0
+)
+
 func (ps *ParticleSystem) HitMessage(message string, startX, row int, hidden []bool) {
+	messageRunes := []rune(message)
 	for _, p := range ps.particles {
 		x := int(p.X)
 		idx := x - startX
-		if idx < 0 || idx >= len(message) || idx >= len(hidden) || hidden[idx] || message[idx] == ' ' {
+		if idx < 0 || idx >= len(messageRunes) || idx >= len(hidden) || hidden[idx] || messageRunes[idx] == ' ' {
 			continue
 		}
 		topY := int(p.Y)
@@ -28,6 +34,15 @@ func (ps *ParticleSystem) Update(dt float64) {
 		return
 	}
 
+	motionDT := dt
+	if motionDT > maxRainMotionStep {
+		motionDT = maxRainMotionStep
+	}
+	spawnDT := dt
+	if spawnDT > maxRainSpawnStep {
+		spawnDT = maxRainSpawnStep
+	}
+
 	if ps.musicOn {
 		if ps.silenced {
 			ps.speedMul = ps.baseSpeed
@@ -42,7 +57,7 @@ func (ps *ParticleSystem) Update(dt float64) {
 
 	defaultSpeedMul := ps.speedMul
 	if !ps.spawnPaused && len(ps.particles) < ps.maxSize {
-		expected := ps.spawnRate * ps.spawnMul * dt
+		expected := ps.spawnRate * ps.spawnMul * spawnDT
 		attempts := int(expected)
 		if rand.Float64() < expected-float64(attempts) {
 			attempts++
@@ -66,12 +81,12 @@ func (ps *ParticleSystem) Update(dt float64) {
 		if p.Age >= p.Delay {
 			p.VelY = p.TargetVelY
 			partSpeedMul := defaultSpeedMul
-			if ps.separateFreq && !ps.silenced {
+			if ps.separateFreq && ps.musicOn && !ps.silenced {
 				speedEnergy := separating_frequencies.LayerSpeedEnergy(ps.separateFreq, p.Layer, ps.pulse, ps.lowEnergy, ps.midEnergy, ps.highEnergy)
 				partSpeedMul = ps.baseSpeed * separating_frequencies.Clamp(speedEnergy*3.2*ps.intensity, 0.12, 7.0)
 			}
-			p.X += p.VelX * dt * partSpeedMul
-			p.Y += p.VelY * dt * partSpeedMul
+			p.X += p.VelX * motionDT * partSpeedMul
+			p.Y += p.VelY * motionDT * partSpeedMul
 		}
 
 		if p.Age < p.GrowTime {

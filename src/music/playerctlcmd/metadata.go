@@ -86,6 +86,18 @@ func PositionSeconds() int {
 	return int(position)
 }
 
+func PlaybackStatus() string {
+	value, err := run("status")
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(value)
+}
+
+func IsPaused() bool {
+	return strings.EqualFold(PlaybackStatus(), "Paused")
+}
+
 func MetadataValue(key string) string {
 	if !Available() {
 		return ""

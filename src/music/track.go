@@ -11,6 +11,7 @@ type TrackInfo struct {
 	Album       string `json:"album"`
 	Duration    int    `json:"duration"`
 	Elapsed     int    `json:"elapsed"`
+	Paused      bool   `json:"paused,omitempty"`
 	ArtworkURL  string `json:"artwork_url"`
 	ArtworkPath string `json:"artwork_path,omitempty"`
 	Source      string
@@ -90,6 +91,7 @@ func (t *TrackInfo) Clone() *TrackInfo {
 		Album:       t.Album,
 		Duration:    t.Duration,
 		Elapsed:     t.Elapsed,
+		Paused:      t.Paused,
 		ArtworkURL:  t.ArtworkURL,
 		ArtworkPath: t.ArtworkPath,
 		Source:      t.Source,

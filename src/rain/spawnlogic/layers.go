@@ -54,10 +54,19 @@ func chooseLayer(state State) int {
 		return layerFar
 	}
 
-	weightLow := state.LowEnergy * 3.0
-	weightMid := state.MidEnergy * 1.2
-	weightHigh := state.HighEnergy * 0.7
-	total := weightLow + weightMid + weightHigh
+	weightHigh := state.HighEnergy * 2.6
+	weightMid := state.MidEnergy * 1.4
+	weightLow := state.LowEnergy * 2.2
+
+	// Keep a persistent foreground presence in separated mode so near layers
+	// do not disappear when low frequencies dominate.
+	weightVeryNear := 0.20 + weightHigh*0.68 + weightMid*0.18
+	weightNear := 0.28 + weightHigh*0.42 + weightMid*0.36 + weightLow*0.08
+	weightMidLayer := 0.20 + weightMid*0.34 + weightHigh*0.14 + weightLow*0.16
+	weightFar := 0.12 + weightLow*0.30 + weightMid*0.16
+	weightVeryFar := 0.05 + weightLow*0.14
+
+	total := weightVeryNear + weightNear + weightMidLayer + weightFar + weightVeryFar
 	if total <= 0 {
 		r := rand.Float64()
 		if r < 0.4 {
@@ -70,16 +79,19 @@ func chooseLayer(state State) int {
 	}
 
 	r := rand.Float64() * total
-	if r < weightLow*0.55 {
+	if r < weightVeryNear {
 		return layerVeryNear
 	}
-	if r < weightLow {
+	r -= weightVeryNear
+	if r < weightNear {
 		return layerNear
 	}
-	if r < weightLow+weightMid*0.6 {
+	r -= weightNear
+	if r < weightMidLayer {
 		return layerMid
 	}
-	if r < weightLow+weightMid {
+	r -= weightMidLayer
+	if r < weightFar {
 		return layerFar
 	}
 	return layerVeryFar
@@ -94,9 +106,9 @@ func layerProps(layer int) LayerProps {
 	case layerMid:
 		return LayerProps{MinLength: 3, MaxLength: 6, MinSpeed: 16.0, MaxSpeed: 20.0, Opacity: 4, GrowTime: 0.20, Delay: 0.08}
 	case layerFar:
-		return LayerProps{MinLength: 2, MaxLength: 4, MinSpeed: 12.0, MaxSpeed: 16.0, Opacity: 3, GrowTime: 0.26, Delay: 0.10}
+		return LayerProps{MinLength: 2, MaxLength: 4, MinSpeed: 12.0, MaxSpeed: 16.0, Opacity: 4, GrowTime: 0.26, Delay: 0.10}
 	default:
-		return LayerProps{MinLength: 1, MaxLength: 3, MinSpeed: 9.0, MaxSpeed: 13.0, Opacity: 2, GrowTime: 0.32, Delay: 0.15}
+		return LayerProps{MinLength: 1, MaxLength: 3, MinSpeed: 9.0, MaxSpeed: 13.0, Opacity: 3, GrowTime: 0.32, Delay: 0.15}
 	}
 }
 

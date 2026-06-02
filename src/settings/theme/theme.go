@@ -11,6 +11,11 @@ type Theme struct {
 	TrackArtist         tcell.Color
 	TrackAlbum          tcell.Color
 	TrackTime           tcell.Color
+	LyricsCurrent       tcell.Color
+	LyricsInactive      tcell.Color
+	LyricsPulse         tcell.Color
+	LyricsBackground    tcell.Color
+	LyricsGap           int
 	TimelineBracket     tcell.Color
 	TimelinePlayed      tcell.Color
 	TimelineCurrent     tcell.Color
@@ -51,6 +56,11 @@ func DefaultTheme() Theme {
 		TrackArtist:         tcell.ColorGreen,
 		TrackAlbum:          tcell.ColorYellow,
 		TrackTime:           tcell.ColorGray,
+		LyricsCurrent:       tcell.ColorWhite,
+		LyricsInactive:      tcell.ColorLightGray,
+		LyricsPulse:         tcell.ColorLightCyan,
+		LyricsBackground:    tcell.ColorDefault,
+		LyricsGap:           2,
 		TimelineBracket:     tcell.ColorSilver,
 		TimelinePlayed:      tcell.ColorGreen,
 		TimelineCurrent:     tcell.ColorGreen,

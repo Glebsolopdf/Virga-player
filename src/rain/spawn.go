@@ -13,7 +13,7 @@ func (ps *ParticleSystem) spawnInitial() {
 }
 
 func newParticle(plan spawnlogic.ParticlePlan) Particle {
-	fadeTime := 0.18 + rand.Float64()*0.12
+	fadeTime := 0.24 + rand.Float64()*0.16
 	if fadeTime > plan.Life*0.45 {
 		fadeTime = plan.Life * 0.45
 	}

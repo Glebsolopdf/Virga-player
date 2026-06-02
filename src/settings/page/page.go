@@ -1,6 +1,8 @@
 package page
 
-import "virga-player/settings"
+import (
+	"virga-player/settings"
+)
 
 type Page struct {
 	Config        *settings.Config
@@ -16,6 +18,7 @@ const (
 	sectionRain
 	sectionAudio
 	sectionVisual
+	sectionLyrics
 	sectionReset
 	sectionDanger
 )
@@ -25,6 +28,8 @@ func NewPage(cfg *settings.Config) *Page {
 	p.Selected = p.firstSelectableIndex()
 	return p
 }
+
+// notifications removed
 
 type menuItem struct {
 	label      string

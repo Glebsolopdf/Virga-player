@@ -19,6 +19,10 @@ func parseThemeCSS(input string, base Theme) Theme {
 		"track-artist":         &result.TrackArtist,
 		"track-album":          &result.TrackAlbum,
 		"track-time":           &result.TrackTime,
+		"lyrics-current":       &result.LyricsCurrent,
+		"lyrics-inactive":      &result.LyricsInactive,
+		"lyrics-pulse":         &result.LyricsPulse,
+		"lyrics-bg":            &result.LyricsBackground,
 		"timeline-bracket":     &result.TimelineBracket,
 		"timeline-played":      &result.TimelinePlayed,
 		"timeline-current":     &result.TimelineCurrent,
@@ -37,6 +41,10 @@ func parseThemeCSS(input string, base Theme) Theme {
 		"settings-selected-bg": &result.SettingsSelectedBg,
 		"settings-danger":      &result.SettingsDanger,
 		"settings-danger-bg":   &result.SettingsDangerBg,
+	}
+
+	intVars := map[string]*int{
+		"lyrics-gap": &result.LyricsGap,
 	}
 
 	runeVars := map[string]*rune{
@@ -63,6 +71,12 @@ func parseThemeCSS(input string, base Theme) Theme {
 
 		if target, ok := colorVars[name]; ok {
 			if parsed, valid := parser.ParseColor(value); valid {
+				*target = parsed
+			}
+			continue
+		}
+		if target, ok := intVars[name]; ok {
+			if parsed, valid := parser.ParseInt(value); valid {
 				*target = parsed
 			}
 			continue

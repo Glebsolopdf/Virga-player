@@ -22,6 +22,7 @@ func getPlayerctlTrack() *TrackInfo {
 		Album:      metadata.Album,
 		Duration:   metadata.Duration,
 		Elapsed:    playerctlcmd.PositionSeconds(),
+		Paused:     playerctlcmd.IsPaused(),
 		ArtworkURL: artworkURL,
 		Source:     "playerctl",
 	}
@@ -49,6 +50,7 @@ func getPlayerctlTrackFallback() *TrackInfo {
 		Album:      album,
 		Duration:   duration,
 		Elapsed:    playerctlcmd.PositionSeconds(),
+		Paused:     playerctlcmd.IsPaused(),
 		ArtworkURL: artworkURL,
 		Source:     "playerctl",
 	}

@@ -1,5 +1,11 @@
 package config
 
+import (
+	"path/filepath"
+
+	"virga-player/lyricsearch"
+)
+
 func (c *Config) normalize() {
 	if c.FPS <= 0 {
 		c.FPS = 60
@@ -50,6 +56,20 @@ func (c *Config) normalize() {
 	if c.MusicPlayerIntensity > 200 {
 		c.MusicPlayerIntensity = 200
 	}
+	c.normalizeLyricsMode()
+	if c.LyricsAutoSaveAfterSec <= 0 {
+		c.LyricsAutoSaveAfterSec = 30
+	}
+	if c.LyricsAutoSaveAfterSec > 600 {
+		c.LyricsAutoSaveAfterSec = 600
+	}
+	if c.LyricsTempDir == "" {
+		c.LyricsTempDir = filepath.Join("/tmp", "virgaplayerlyrics")
+	}
+	if c.LyricsPersistentDir == "" {
+		c.LyricsPersistentDir = lyricsearch.DefaultPersistentDir()
+	}
+	c.normalizeRainLayerModes()
 	switch c.Direction {
 	case DirectionRightToLeft, DirectionLeftToRight, DirectionStraight, DirectionRandom:
 		return

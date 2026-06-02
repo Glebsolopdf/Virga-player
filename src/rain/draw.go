@@ -7,11 +7,27 @@ import (
 )
 
 func (ps *ParticleSystem) Draw(screen tcell.Screen) {
+	ps.draw(screen, func(int) bool { return true })
+}
+
+func (ps *ParticleSystem) DrawBackLayers(screen tcell.Screen) {
+	ps.draw(screen, func(layer int) bool { return !isFrontRainLayer(layer) })
+}
+
+func (ps *ParticleSystem) DrawFrontLayers(screen tcell.Screen) {
+	ps.draw(screen, isFrontRainLayer)
+}
+
+func (ps *ParticleSystem) draw(screen tcell.Screen, include func(layer int) bool) {
 	if !ps.enabled {
 		return
 	}
 	theme := settings.CurrentTheme()
 	for _, p := range ps.particles {
+		if include != nil && !include(p.Layer) {
+			continue
+		}
+
 		x := int(p.X)
 		y := int(p.Y)
 
@@ -19,7 +35,23 @@ func (ps *ParticleSystem) Draw(screen tcell.Screen) {
 			continue
 		}
 
+		// Calculate how many characters from the bottom should be hidden during fade
+		hiddenFromBottom := 0
+		if p.FadeTime > 0 && p.Age > p.Life-p.FadeTime {
+			fadeProgress := (p.Age - (p.Life - p.FadeTime)) / p.FadeTime
+			if fadeProgress > 1 {
+				fadeProgress = 1
+			}
+			// Erase from bottom to top: hide progressively more from the bottom
+			hiddenFromBottom = int(fadeProgress * float64(p.Length))
+		}
+
 		for i := 0; i < p.Length; i++ {
+			// Skip drawing characters that should be hidden from the bottom
+			if i >= p.Length-hiddenFromBottom {
+				continue
+			}
+
 			dropY := y + i
 			if dropY >= ps.height {
 				break
@@ -31,6 +63,10 @@ func (ps *ParticleSystem) Draw(screen tcell.Screen) {
 			screen.SetContent(x, dropY, char, nil, style)
 		}
 	}
+}
+
+func isFrontRainLayer(layer int) bool {
+	return layer == layerVeryNear || layer == layerNear
 }
 
 func getDropColor(opacity int, theme settings.Theme) tcell.Color {
@@ -52,7 +88,7 @@ func getDropStyle(color tcell.Color, layer, position, length, opacity, maxOpacit
 	case layerMid:
 		style = style.Foreground(color)
 	case layerFar:
-		style = style.Foreground(color).Dim(true)
+		style = style.Foreground(color)
 	case layerVeryFar:
 		style = style.Foreground(color).Dim(true)
 	}

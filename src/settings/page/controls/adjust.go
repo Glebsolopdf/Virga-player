@@ -31,28 +31,31 @@ func Rain(cfg *settings.Config, selected, delta int) bool {
 		cfg.RainLifetime = clampInt(cfg.RainLifetime+delta*10, 20, 200)
 		return cfg.RainLifetime != prev
 	case 2:
+		prev := cfg.Direction
+		options := settings.DirectionOptions()
+		index := DirectionIndex(cfg)
+		index = (index + delta + len(options)) % len(options)
+		cfg.Direction = options[index]
+		return cfg.Direction != prev
+	case 3:
 		prev := cfg.PulseSpeed
 		cfg.PulseSpeed = clampInt(cfg.PulseSpeed+delta*10, 25, 300)
 		return cfg.PulseSpeed != prev
-	case 3:
+	case 4:
 		prev := cfg.PulseMode
 		options := settings.PulseModeOptions()
 		index := PulseModeIndex(cfg)
 		index = (index + delta + len(options)) % len(options)
 		cfg.SetPulseMode(options[index])
 		return cfg.PulseMode != prev
-	case 4:
+	case 5:
 		prev := cfg.RainEnabled
 		cfg.RainEnabled = !cfg.RainEnabled
 		return cfg.RainEnabled != prev
-	case 5:
+	case 6:
 		prev := cfg.RainPulse
 		cfg.RainPulse = clampInt(cfg.RainPulse+delta*10, 20, 200)
 		return cfg.RainPulse != prev
-	case 6:
-		prev := cfg.SeparateFrequencies
-		cfg.SeparateFrequencies = !cfg.SeparateFrequencies
-		return cfg.SeparateFrequencies != prev
 	}
 	return false
 }
@@ -68,6 +71,10 @@ func Audio(cfg *settings.Config, selected, delta int) bool {
 		cfg.MusicReactiveIntensity = clampInt(cfg.MusicReactiveIntensity+delta*10, 20, 200)
 		return cfg.MusicReactiveIntensity != prev
 	case 2:
+		prev := cfg.SeparateFrequencies
+		cfg.SeparateFrequencies = !cfg.SeparateFrequencies
+		return cfg.SeparateFrequencies != prev
+	case 3:
 		prev := cfg.RainVisualizer
 		cfg.RainVisualizer = !cfg.RainVisualizer
 		return cfg.RainVisualizer != prev
@@ -90,20 +97,48 @@ func Visual(cfg *settings.Config, selected, delta int) bool {
 		cfg.MusicPlayerInvert = !cfg.MusicPlayerInvert
 		return cfg.MusicPlayerInvert != prev
 	case 3:
-		prev := cfg.RainInFrontOfPlayer
-		cfg.RainInFrontOfPlayer = !cfg.RainInFrontOfPlayer
-		return cfg.RainInFrontOfPlayer != prev
-	case 4:
-		prev := cfg.Direction
-		options := settings.DirectionOptions()
-		index := DirectionIndex(cfg)
+		prev := cfg.PlayerRainLayer
+		options := settings.RainLayerOptions()
+		index := RainLayerIndex(cfg.PlayerRainLayer)
 		index = (index + delta + len(options)) % len(options)
-		cfg.Direction = options[index]
-		return cfg.Direction != prev
-	case 5:
+		cfg.PlayerRainLayer = options[index]
+		return cfg.PlayerRainLayer != prev
+	case 4:
 		prev := cfg.Player
 		cfg.Player = !cfg.Player
 		return cfg.Player != prev
+	}
+	return false
+}
+
+func Lyrics(cfg *settings.Config, selected, delta int) bool {
+	switch selected {
+	case 0:
+		prev := cfg.LyricsVisible
+		cfg.LyricsVisible = !cfg.LyricsVisible
+		return cfg.LyricsVisible != prev
+	case 1:
+		prev := cfg.LyricsMode
+		options := settings.LyricsModeOptions()
+		index := LyricsModeIndex(cfg)
+		index = (index + delta + len(options)) % len(options)
+		cfg.LyricsMode = options[index]
+		return cfg.LyricsMode != prev
+	case 2:
+		prev := cfg.LyricsAutoSaveAfterSec
+		cfg.LyricsAutoSaveAfterSec = clampInt(cfg.LyricsAutoSaveAfterSec+delta*5, 5, 600)
+		return cfg.LyricsAutoSaveAfterSec != prev
+	case 3:
+		prev := cfg.LyricsRainLayer
+		options := settings.RainLayerOptions()
+		index := RainLayerIndex(cfg.LyricsRainLayer)
+		index = (index + delta + len(options)) % len(options)
+		cfg.LyricsRainLayer = options[index]
+		return cfg.LyricsRainLayer != prev
+	case 4:
+		prev := cfg.LyricsDoubleConfirm
+		cfg.LyricsDoubleConfirm = !cfg.LyricsDoubleConfirm
+		return cfg.LyricsDoubleConfirm != prev
 	}
 	return false
 }

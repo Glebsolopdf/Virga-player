@@ -9,6 +9,11 @@ const defaultThemeCSS = `/* Virga Player theme */
   --track-artist: green;
   --track-album: yellow;
   --track-time: gray;
+  --lyrics-current: white;
+  --lyrics-inactive: lightgray;
+  --lyrics-pulse: lightcyan;
+  --lyrics-bg: transparent;
+  --lyrics-gap: 2;
 
   --timeline-bracket: silver;
   --timeline-played: green;

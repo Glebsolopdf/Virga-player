@@ -17,11 +17,31 @@ func LoadOrCreateConfig() (*Config, bool, error) {
 		return DefaultConfig(), false, err
 	}
 
+	missingLyricsFields := true
+	missingRainLayerFields := true
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(data, &raw); err == nil {
+		_, hasLyricsMode := raw["lyrics_mode"]
+		_, hasLyricsVisible := raw["lyrics_visible"]
+		_, hasLyricsAutoSaveAfterSec := raw["lyrics_auto_save_after_sec"]
+		_, hasLyricsDoubleConfirm := raw["lyrics_double_confirm"]
+		missingLyricsFields = !hasLyricsMode || !hasLyricsVisible || !hasLyricsAutoSaveAfterSec || !hasLyricsDoubleConfirm
+		_, hasPlayerRainLayer := raw["player_rain_layer"]
+		_, hasLyricsRainLayer := raw["lyrics_rain_layer"]
+		missingRainLayerFields = !hasPlayerRainLayer || !hasLyricsRainLayer
+
+	}
+
 	cfg := DefaultConfig()
 	if err := json.Unmarshal(data, cfg); err != nil {
 		return DefaultConfig(), false, err
 	}
 	cfg.normalize()
+	if missingLyricsFields || missingRainLayerFields {
+		if err := SaveConfig(cfg); err != nil {
+			return cfg, false, err
+		}
+	}
 	return cfg, false, nil
 }
 
@@ -58,7 +78,15 @@ func (c *Config) MarshalJSON() ([]byte, error) {
 		MusicPlayerAnimation:   c.MusicPlayerAnimation,
 		MusicPlayerIntensity:   c.MusicPlayerIntensity,
 		MusicPlayerInvert:      c.MusicPlayerInvert,
-		RainInFrontOfPlayer:    c.RainInFrontOfPlayer,
+		PlayerRainLayer:        c.PlayerRainLayer,
+		LyricsMode:             c.LyricsMode,
+		LyricsVisible:          c.LyricsVisible,
+		LyricsRainLayer:        c.LyricsRainLayer,
+		LyricsSaveToCache:      c.LyricsSaveToCache,
+		LyricsAutoSaveAfterSec: c.LyricsAutoSaveAfterSec,
+		LyricsDoubleConfirm:    c.LyricsDoubleConfirm,
+		LyricsTempDir:          c.LyricsTempDir,
+		LyricsPersistentDir:    c.LyricsPersistentDir,
 		Direction:              c.Direction,
 		Player:                 c.Player,
 	})
@@ -88,9 +116,29 @@ func (c *Config) UnmarshalJSON(data []byte) error {
 	c.MusicPlayerAnimation = raw.MusicPlayerAnimation
 	c.MusicPlayerIntensity = raw.MusicPlayerIntensity
 	c.MusicPlayerInvert = raw.MusicPlayerInvert
-	c.RainInFrontOfPlayer = raw.RainInFrontOfPlayer
+	c.PlayerRainLayer = raw.PlayerRainLayer
+	if c.PlayerRainLayer == "" && raw.RainInFrontOfPlayer != nil {
+		if *raw.RainInFrontOfPlayer {
+			c.PlayerRainLayer = RainLayerBehind
+		} else {
+			c.PlayerRainLayer = RainLayerFront
+		}
+	}
+	c.LyricsMode = raw.LyricsMode
+	c.LyricsVisible = raw.LyricsVisible
+	c.LyricsRainLayer = raw.LyricsRainLayer
+	c.LyricsSaveToCache = raw.LyricsSaveToCache
+	c.LyricsAutoSaveAfterSec = raw.LyricsAutoSaveAfterSec
+	if raw.LyricsDoubleConfirm == nil {
+		c.LyricsDoubleConfirm = true
+	} else {
+		c.LyricsDoubleConfirm = *raw.LyricsDoubleConfirm
+	}
+	c.LyricsTempDir = raw.LyricsTempDir
+	c.LyricsPersistentDir = raw.LyricsPersistentDir
 	c.Direction = raw.Direction
 	c.Player = raw.Player
+
 	return nil
 }
 
