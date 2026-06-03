@@ -40,7 +40,7 @@ fi
 
 if [[ -f "$TARGET_DIR/build.sh" ]]; then
     echo -n "Start compiling? (y/n): "
-    read -r REPLY
+    read -r REPLY </dev/tty
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         msg "Building from $TARGET_DIR/build.sh..."
         chmod +x "$TARGET_DIR/build.sh"
@@ -54,7 +54,7 @@ fi
 
 echo -e "\n${GREEN}${BOLD}Done.${NC}"
 echo -n "Run Virga-player now? (y/n): "
-read -r REPLY
+read -r REPLY </dev/tty
 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     if [[ -x "$TARGET_DIR/bin/virga-player" ]]; then
