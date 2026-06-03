@@ -11,6 +11,7 @@ error() { echo -e "\033[0;31m${BOLD}Error:${NC} $1"; exit 1; }
 
 msg "Starting installation."
 msg "Installing dependencies..."
+
 if [ -f /etc/arch-release ]; then
     sudo pacman -Sy --noconfirm --needed go git imagemagick playerctl
 elif [ -f /etc/debian_version ]; then
@@ -38,8 +39,8 @@ else
 fi
 
 if [[ -f "$TARGET_DIR/build.sh" ]]; then
-    read -p "Start compiling? (y/n) " -n 1 -r
-    echo
+    echo -n "Start compiling? (y/n): "
+    read -r REPLY
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         msg "Building from $TARGET_DIR/build.sh..."
         chmod +x "$TARGET_DIR/build.sh"
@@ -52,8 +53,9 @@ else
 fi
 
 echo -e "\n${GREEN}${BOLD}Done.${NC}"
-read -p "Run Virga-player now? (y/n) " -n 1 -r
-echo
+echo -n "Run Virga-player now? (y/n): "
+read -r REPLY
+
 if [[ $REPLY =~ ^[Yy]$ ]]; then
     if [[ -x "$TARGET_DIR/bin/virga-player" ]]; then
         "$TARGET_DIR/bin/virga-player"
