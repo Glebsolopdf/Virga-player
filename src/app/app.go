@@ -51,6 +51,8 @@ type App struct {
 
 	lyricsPromptMu sync.Mutex
 	lyricsPrompt   *lyricsPromptState
+	lyricsStatus   string
+	lyricsStatusTo time.Time
 
 	lyricsDoubleConfirm atomic.Bool
 	uninstallInProgress atomic.Bool

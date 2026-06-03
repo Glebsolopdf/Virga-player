@@ -52,7 +52,6 @@ func (m *LyricsManager) OnTrackStarted(track Track) (string, error) {
 						m.debugf("failed to write temp cache artist=%q track=%q err=%v", artist, title, err)
 					}
 				}
-				m.scheduleDeferredSave(mode, key, autoSaveAfter, promptCb, track, lyrics)
 				return lyrics, nil
 			}
 		}
@@ -113,6 +112,14 @@ func (m *LyricsManager) scheduleDeferredSave(mode, key string, delay time.Durati
 			return
 		}
 
+		if m.hasPersistentTimedLyrics(track) {
+			m.debugf("deferred save skipped (already persisted) artist=%q track=%q", track.Artist, track.Title)
+			if mode == m.cfg.ModeRAMWithPrompt {
+				m.notifyPromptStatus(prompt, track, lyrics, "Lyrics already saved")
+			}
+			return
+		}
+
 		if mode == m.cfg.ModeRAMWithPrompt {
 			if prompt == nil {
 				return
@@ -145,8 +152,51 @@ func (m *LyricsManager) scheduleDeferredSave(mode, key string, delay time.Durati
 
 		if _, err := writeLyrics(persistentDir, track.Artist, track.Title, lyrics); err != nil {
 			m.debugf("deferred save failed artist=%q track=%q err=%v", track.Artist, track.Title, err)
+			return
+		}
+
+		if mode == m.cfg.ModeRAMWithPrompt {
+			m.notifyPromptStatus(prompt, track, lyrics, "Lyrics saved")
 		}
 	}()
+}
+
+func (m *LyricsManager) notifyPromptStatus(prompt PromptCallback, track Track, lyrics, message string) {
+	if prompt == nil {
+		return
+	}
+	prompt(context.Background(), PromptRequest{
+		Track:   track,
+		Lyrics:  lyrics,
+		Message: message,
+	})
+}
+
+func (m *LyricsManager) hasPersistentTimedLyrics(track Track) bool {
+	m.mu.RLock()
+	if m.closed {
+		m.mu.RUnlock()
+		return false
+	}
+	persistentDir := m.cfg.PersistentDir
+	readLyrics := m.cfg.ReadLyricsFromDir
+	hasTimed := m.cfg.HasTimedLyrics
+	m.mu.RUnlock()
+
+	if readLyrics == nil {
+		return false
+	}
+
+	lyrics, err := readLyrics(persistentDir, track.Artist, track.Title)
+	if err != nil {
+		return false
+	}
+
+	if hasTimed == nil {
+		return true
+	}
+
+	return hasTimed(lyrics)
 }
 
 func (m *LyricsManager) isActiveTrack(key string) bool {

@@ -23,6 +23,11 @@ func (a *App) onLyricsSavePrompt(ctx context.Context, request lyricsearch.Prompt
 		a.debug.Infof("lyrics prompt: %s", request.Message)
 	}
 
+	if request.Message == "Lyrics saved" || request.Message == "Lyrics already saved" {
+		a.showLyricsStatus(request.Message)
+		return false
+	}
+
 	now := time.Now()
 	doubleConfirm := a.lyricsDoubleConfirm.Load()
 	message := request.Message
@@ -145,6 +150,12 @@ func (a *App) lyricsPromptBanner(now time.Time) (text string, show bool) {
 
 	state := a.lyricsPrompt
 	if state == nil {
+		if a.lyricsStatus != "" && now.Before(a.lyricsStatusTo) {
+			return a.lyricsStatus, true
+		}
+		if a.lyricsStatus != "" && now.After(a.lyricsStatusTo) {
+			a.lyricsStatus = ""
+		}
 		return "", false
 	}
 	if now.After(state.showUntil) {
@@ -160,4 +171,11 @@ func (a *App) lyricsPromptBanner(now time.Time) (text string, show bool) {
 		text = fmt.Sprintf("%s (%ds left)", text, int(remaining.Seconds())+1)
 	}
 	return text, true
+}
+
+func (a *App) showLyricsStatus(message string) {
+	a.lyricsPromptMu.Lock()
+	a.lyricsStatus = message
+	a.lyricsStatusTo = time.Now().Add(lyricsPromptVisibleDuration)
+	a.lyricsPromptMu.Unlock()
 }
