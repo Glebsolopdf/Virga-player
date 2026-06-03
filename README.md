@@ -1,10 +1,27 @@
-![Virga logo](<for readme/virga.png>)
+<img src="for readme/prew.png" alt="Virga prew" style="max-width: 50%;" />
 
 ![Go](https://img.shields.io/badge/Go-1.25+-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 ![Platform](https://img.shields.io/badge/Platform-Linux-yellow.svg)
 
 Virga Player is a terminal application written in Go for visualizing music playback with rain particle effects and track metadata.
+
+## Player Compatibility
+
+| Player | Status | Notes |
+|:---|:---:|:---|
+| ![Spotify](https://img.shields.io/badge/Spotify_(Client)-ffffff?style=flat&logo=spotify&logoColor=000000&labelColor=ffffff) | ![Full](https://img.shields.io/badge/Full-2ea44f?style=flat&logo=check&logoColor=ffffff) | Perfect metadata sync, cover art works flawlessly. |
+| ![SoundCloud](https://img.shields.io/badge/SoundCloud_(Web)-ffffff?style=flat&logo=soundcloud&logoColor=000000&labelColor=ffffff) | ![Mostly Stable](https://img.shields.io/badge/Mostly_Stable-94d3a2?style=flat&logo=check&logoColor=ffffff) | Works great, tracks metadata and artwork correctly. |
+| ![Yandex Music](https://img.shields.io/badge/Yandex_Music_(Web)-ffffff?style=flat&logo=yandex&logoColor=000000&labelColor=ffffff) | ![Mostly Stable](https://img.shields.io/badge/Mostly_Stable-94d3a2?style=flat&logo=check&logoColor=ffffff) | Highly functional, but web-extension might briefly drop cover art on track change. |
+| ![Spotify](https://img.shields.io/badge/Spotify_(Web)-ffffff?style=flat&logo=spotify&logoColor=000000&labelColor=ffffff) | ![Bugs](https://img.shields.io/badge/Minor_Bugs-dfb317?style=flat&logo=alert&logoColor=ffffff) | Syncs metadata and controls fine, but fails to extract cover art. |
+| ![YouTube Music](https://img.shields.io/badge/YouTube_Music-ffffff?style=flat&logo=youtubemusic&logoColor=000000&labelColor=ffffff) | ![Bugs](https://img.shields.io/badge/Minor_Bugs-dfb317?style=flat&logo=alert&logoColor=ffffff) | Metadata and artwork sync properly, but fails to track duration. |
+| ![Apple Music](https://img.shields.io/badge/Apple_Music_(Web)-ffffff?style=flat&logo=apple-music&logoColor=000000&labelColor=ffffff) | ![Bugs](https://img.shields.io/badge/Minor_Bugs-dfb317?style=flat&logo=alert&logoColor=ffffff) | Web version via extension fails to track duration; artwork updates only on the first track of an album. |
+
+### Status Legend
+* ![Full](https://img.shields.io/badge/Full-2ea44f?style=flat&logo=check&logoColor=ffffff) - Works flawlessly out of the box.
+* ![Mostly Stable](https://img.shields.io/badge/Mostly_Stable-94d3a2?style=flat&logo=check&logoColor=ffffff) — Highly functional, but rare minor glitches may occur due to browser MPRIS extensions.
+* ![Bugs](https://img.shields.io/badge/Minor_Bugs-dfb317?style=flat&logo=alert&logoColor=ffffff) — Functional, but missing some features (like duration or artwork) due to web-player limitations.
+* ![Not Supported](https://img.shields.io/badge/Not_Supported-954a4a?style=flat&logo=octicons&logoColor=ffffff) — Does not work with Virga Player at the moment.
 
 ### Requirements
 
@@ -48,8 +65,10 @@ git clone https://github.com/Glebsolopdf/Virga-player
 cd Virga-player
 cd src
 go mod download
-go build -o ../virga-player main.go
-./virga-player
+mkdir -p ../virga-player/bin
+go build -o ../virga-player/bin/virga-player main.go
+cd ..
+./virga-player/bin/virga-player
 ```
 
 ## Usage
@@ -173,3 +192,4 @@ Example theme variables:
 
 This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 
+![Virga logo](<for readme/virga.png>)

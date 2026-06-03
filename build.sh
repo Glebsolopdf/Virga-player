@@ -10,7 +10,8 @@ NC='\033[0m'
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SRC_DIR="$ROOT_DIR/src"
-OUTPUT="$ROOT_DIR/virga-player"
+BIN_DIR="$ROOT_DIR/virga-player/bin"
+OUTPUT="$BIN_DIR/virga-player"
 
 trap 'printf "\n${RED}Build interrupted.${NC}\n"; exit 1' INT
 
@@ -37,8 +38,10 @@ check_env() {
         exit 1
     fi
 
-    if [[ ! -w "$ROOT_DIR" ]]; then
-        echo -e "${RED}Error: No write permission in $ROOT_DIR${NC}"
+    mkdir -p "$BIN_DIR"
+
+    if [[ ! -w "$BIN_DIR" ]]; then
+        echo -e "${RED}Error: No write permission in $BIN_DIR${NC}"
         exit 1
     fi
 }
