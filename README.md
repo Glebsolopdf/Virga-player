@@ -66,6 +66,7 @@ cd Virga-player
 cd src
 go mod download
 go build -o ../virga-player main.go
+cd ..
 ./virga-player
 ```
 
