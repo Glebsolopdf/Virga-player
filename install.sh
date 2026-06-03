@@ -9,6 +9,7 @@ NC='\033[0m'
 msg() { echo -e "${BLUE}${BOLD}::${NC} ${BOLD}$1${NC}"; }
 error() { echo -e "\033[0;31m${BOLD}Error:${NC} $1"; exit 1; }
 
+msg "Starting installation."
 msg "Installing dependencies..."
 if [ -f /etc/arch-release ]; then
     sudo pacman -Sy --noconfirm --needed go git imagemagick playerctl
@@ -37,9 +38,15 @@ else
 fi
 
 if [[ -f "$TARGET_DIR/build.sh" ]]; then
-    msg "Building from $TARGET_DIR/build.sh..."
-    chmod +x "$TARGET_DIR/build.sh"
-    "$TARGET_DIR/build.sh"
+    read -p "Start compiling? (y/n) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        msg "Building from $TARGET_DIR/build.sh..."
+        chmod +x "$TARGET_DIR/build.sh"
+        "$TARGET_DIR/build.sh"
+    else
+        msg "Compilation skipped by user."
+    fi
 else
     error "Security check failed: build.sh not found in $TARGET_DIR"
 fi
@@ -48,5 +55,9 @@ echo -e "\n${GREEN}${BOLD}Done.${NC}"
 read -p "Run Virga-player now? (y/n) " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    ./virga-player
+    if [[ -x "$TARGET_DIR/bin/virga-player" ]]; then
+        "$TARGET_DIR/bin/virga-player"
+    else
+        error "Binary not found at $TARGET_DIR/bin/virga-player. Build it first."
+    fi
 fi

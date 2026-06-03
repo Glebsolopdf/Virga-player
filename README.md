@@ -1,4 +1,4 @@
-![Virga prew](<for readme/prew.png>) 
+<img src="for readme/prew.png" alt="Virga prew" style="max-width: 50%;" />
 
 ![Go](https://img.shields.io/badge/Go-1.25+-blue.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
@@ -18,7 +18,7 @@ Virga Player is a terminal application written in Go for visualizing music playb
 | ![Apple Music](https://img.shields.io/badge/Apple_Music_(Web)-ffffff?style=flat&logo=apple-music&logoColor=000000&labelColor=ffffff) | ![Bugs](https://img.shields.io/badge/Minor_Bugs-dfb317?style=flat&logo=alert&logoColor=ffffff) | Web version via extension fails to track duration; artwork updates only on the first track of an album. |
 
 ### Status Legend
-* ![Full](https://img.shields.io/badge/Full-2ea44f?style=flat&logo=check&logoColor=ffffff) — Works flawlessly out of the box.
+* ![Full](https://img.shields.io/badge/Full-2ea44f?style=flat&logo=check&logoColor=ffffff) - Works flawlessly out of the box.
 * ![Mostly Stable](https://img.shields.io/badge/Mostly_Stable-94d3a2?style=flat&logo=check&logoColor=ffffff) — Highly functional, but rare minor glitches may occur due to browser MPRIS extensions.
 * ![Bugs](https://img.shields.io/badge/Minor_Bugs-dfb317?style=flat&logo=alert&logoColor=ffffff) — Functional, but missing some features (like duration or artwork) due to web-player limitations.
 * ![Not Supported](https://img.shields.io/badge/Not_Supported-954a4a?style=flat&logo=octicons&logoColor=ffffff) — Does not work with Virga Player at the moment.
@@ -65,9 +65,10 @@ git clone https://github.com/Glebsolopdf/Virga-player
 cd Virga-player
 cd src
 go mod download
-go build -o ../virga-player main.go
+mkdir -p ../virga-player/bin
+go build -o ../virga-player/bin/virga-player main.go
 cd ..
-./virga-player
+./virga-player/bin/virga-player
 ```
 
 ## Usage
