@@ -36,6 +36,10 @@ Virga Player is a terminal application written in Go for visualizing music playb
 ```bash
 sudo pacman -S go git imagemagick
 ```
+## openSUSE (It is recommended to use the Tumbleweed version)
+```bash
+sudo zypper install go git ImageMagick
+```
 
 ## Void 
 ```bash
