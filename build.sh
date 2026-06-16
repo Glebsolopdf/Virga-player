@@ -10,8 +10,8 @@ NC='\033[0m'
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SRC_DIR="$ROOT_DIR/src"
-BIN_DIR="$ROOT_DIR/virga-player/bin"
-OUTPUT="$BIN_DIR/virga-player"
+BIN_DIR="$ROOT_DIR/bin"
+OUTPUT="$BIN_DIR/virga-player-Beta"
 
 trap 'printf "\n${RED}Build interrupted.${NC}\n"; exit 1' INT
 
@@ -29,8 +29,8 @@ check_env() {
 
     GO_VER_MINOR=$(go version | sed -n 's/.*go1\.\([0-9]*\).*/\1/p')
     if [[ -z "$GO_VER_MINOR" || "$GO_VER_MINOR" -lt 25 ]]; then
-        echo -e "${RED}Error: Go 1.25+ is required. Current version: $(go version)${NC}"
-        exit 1
+        echo -e "${YELLOW}Warning: Go 1.25+ is recommended. Current version: $(go version)${NC}"
+        echo -e "${YELLOW}Trying to build anyway...${NC}"
     fi
 
     if [[ ! -d "$SRC_DIR" ]]; then
@@ -39,11 +39,6 @@ check_env() {
     fi
 
     mkdir -p "$BIN_DIR"
-
-    if [[ ! -w "$BIN_DIR" ]]; then
-        echo -e "${RED}Error: No write permission in $BIN_DIR${NC}"
-        exit 1
-    fi
 }
 
 cleanup() {
@@ -57,7 +52,7 @@ build() {
     print_step "Compiling Virga Player..."
     
     cd "$SRC_DIR"
-    go build -ldflags="-s -w" -o "$OUTPUT" . &
+    go build -ldflags="-s -w" -o "$OUTPUT" main.go &
     pid=$!
 
     frames="/ | \ -"

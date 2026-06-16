@@ -32,15 +32,13 @@ Virga Player is a terminal application written in Go for visualizing music playb
 
 ### Installation
 
->**The installer for Arch, Debian, Fedora, and Void will automatically install dependencies and build the project.**
-
-```bash
-curl -sSL https://raw.githubusercontent.com/Glebsolopdf/Virga-player/main/install.sh | bash
-```
-
 ## Arch 
 ```bash
 sudo pacman -S go git imagemagick
+```
+## openSUSE (It is recommended to use the Tumbleweed version)
+```bash
+sudo zypper install go git ImageMagick
 ```
 
 ## Void 
