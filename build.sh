@@ -90,3 +90,5 @@ else
     echo -e "${RED}${BOLD}Final binary not found.${NC}"
     exit 1
 fi
+
+# vibecode
