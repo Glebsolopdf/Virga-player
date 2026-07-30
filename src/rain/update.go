@@ -3,8 +3,6 @@ package rain
 import (
 	"math"
 	"math/rand"
-
-	"virga-player/rain/separating_frequencies"
 )
 
 const (
@@ -82,8 +80,8 @@ func (ps *ParticleSystem) Update(dt float64) {
 			p.VelY = p.TargetVelY
 			partSpeedMul := defaultSpeedMul
 			if ps.separateFreq && ps.musicOn && !ps.silenced {
-				speedEnergy := separating_frequencies.LayerSpeedEnergy(ps.separateFreq, p.Layer, ps.pulse, ps.lowEnergy, ps.midEnergy, ps.highEnergy)
-				partSpeedMul = ps.baseSpeed * separating_frequencies.Clamp(speedEnergy*3.2*ps.intensity, 0.12, 7.0)
+				speedEnergy := layerSpeedEnergy(ps.separateFreq, p.Layer, ps.pulse, ps.lowEnergy, ps.midEnergy, ps.highEnergy)
+				partSpeedMul = ps.baseSpeed * max(0.12, min(speedEnergy*3.2*ps.intensity, 7.0))
 			}
 			p.X += p.VelX * motionDT * partSpeedMul
 			p.Y += p.VelY * motionDT * partSpeedMul

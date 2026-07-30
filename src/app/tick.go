@@ -122,7 +122,7 @@ func (a *App) onTick(dt float64) {
 			a.particleSystem.HitMessage(a.state.Message.Text, a.state.Message.X, a.state.Message.Y, a.state.Message.Hidden)
 		}
 		a.particleSystem.Draw(a.screen)
-		a.settingsPage.Render(a.screen, a.renderEngine, a.width, a.height)
+		a.settingsPage.Render(a.screen, a.width, a.height)
 		if a.debug != nil {
 			a.debug.DrawOverlay(a.screen)
 		}
@@ -135,19 +135,18 @@ func (a *App) onTick(dt float64) {
 		footerPromptText = ""
 	}
 
-	frame.NewFrame(
-		a.screen,
-		a.renderEngine,
-		a.particleSystem,
-		a.state.Message,
-		a.state.Player,
-		a.state.PlayerEnabled,
-		!a.state.IsMessageProtected() && !a.state.Message.Persistent,
-		a.debug,
-		a.cfg.MaxParticles,
-		a.cfg.FPS,
-		a.cfg.PlayerRainLayer,
-		a.cfg.LyricsRainLayer,
-		footerPromptText,
-	).Render(dt)
+	frame.Frame{
+		Screen:            a.screen,
+		ParticleSystem:    a.particleSystem,
+		Message:           a.state.Message,
+		Player:            a.state.Player,
+		PlayerEnabled:     a.state.PlayerEnabled,
+		MessageErasable:   !a.state.IsMessageProtected() && !a.state.Message.Persistent,
+		Debug:             a.debug,
+		MaxParticles:      a.cfg.MaxParticles,
+		TargetFPS:         a.cfg.FPS,
+		PlayerRainLayer:   a.cfg.PlayerRainLayer,
+		LyricsRainLayer:   a.cfg.LyricsRainLayer,
+		FooterPromptText:  footerPromptText,
+	}.Render(dt)
 }

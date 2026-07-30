@@ -3,7 +3,6 @@ package rain
 import (
 	"math/rand"
 
-	rainspectrum "virga-player/rain/spectrum"
 	"virga-player/settings"
 )
 
@@ -61,73 +60,12 @@ func (ps *ParticleSystem) ApplyConfig(cfg *settings.Config) {
 }
 
 func (ps *ParticleSystem) ApplySpectrum(dt, low, mid, high, envelope float64) {
-	state := ps.spectrumState()
-	rainspectrum.Apply(&state, dt, low, mid, high, envelope, ps.musicOn)
-	ps.applySpectrumState(state)
+	applySpectrum(ps, dt, low, mid, high, envelope)
 }
 
 func (ps *ParticleSystem) ResetSpectrum() {
-	state := ps.spectrumState()
-	rainspectrum.Reset(&state)
-	ps.applySpectrumState(state)
+	resetSpectrum(ps)
 	ps.bassPhase = 0
 }
 
-func clamp(v, min, max float64) float64 {
-	if v < min {
-		return min
-	}
-	if v > max {
-		return max
-	}
-	return v
-}
 
-func (ps *ParticleSystem) spectrumState() rainspectrum.State {
-	return rainspectrum.State{
-		BaseSpeed:     ps.baseSpeed,
-		BaseSpawn:     ps.baseSpawn,
-		Intensity:     ps.intensity,
-		PulseBias:     ps.pulseBias,
-		PulseSpeed:    ps.pulseSpeed,
-		SpeedMul:      ps.speedMul,
-		SpawnMul:      ps.spawnMul,
-		SpawnRate:     ps.spawnRate,
-		EnergyMul:     ps.energyMul,
-		LowEnergy:     ps.lowEnergy,
-		MidEnergy:     ps.midEnergy,
-		HighEnergy:    ps.highEnergy,
-		LastEnvelope:  ps.lastEnvelope,
-		Pulse:         ps.pulse,
-		PulseTarget:   ps.pulseTarget,
-		LastPulseKey:  ps.lastPulseKey,
-		BeatTimer:     ps.beatTimer,
-		BeatInterval:  ps.beatInterval,
-		AdaptiveSpeed: ps.adaptiveSpeed,
-		Silenced:      ps.silenced,
-		PulseActive:   ps.pulseActive,
-		PulseAttack:   ps.pulseAttack,
-		PulseEnabled:  ps.pulseEnabled,
-		Visualizer:    ps.visualizer,
-	}
-}
-
-func (ps *ParticleSystem) applySpectrumState(state rainspectrum.State) {
-	ps.speedMul = state.SpeedMul
-	ps.spawnMul = state.SpawnMul
-	ps.spawnRate = state.SpawnRate
-	ps.energyMul = state.EnergyMul
-	ps.lowEnergy = state.LowEnergy
-	ps.midEnergy = state.MidEnergy
-	ps.highEnergy = state.HighEnergy
-	ps.lastEnvelope = state.LastEnvelope
-	ps.pulse = state.Pulse
-	ps.pulseTarget = state.PulseTarget
-	ps.lastPulseKey = state.LastPulseKey
-	ps.beatTimer = state.BeatTimer
-	ps.beatInterval = state.BeatInterval
-	ps.adaptiveSpeed = state.AdaptiveSpeed
-	ps.silenced = state.Silenced
-	ps.pulseActive = state.PulseActive
-	ps.pulseAttack = state.PulseAttack
-}

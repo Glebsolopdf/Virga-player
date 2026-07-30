@@ -1,18 +1,14 @@
 package rain
 
-import (
-	"math/rand"
-
-	spawnlogic "virga-player/rain/spawnlogic"
-)
+import "math/rand"
 
 func (ps *ParticleSystem) spawnInitial() {
-	for i := 0; i < spawnlogic.InitialCount(ps.spawnState()); i++ {
+	for i := 0; i < initialCount(ps.spawnCfg()); i++ {
 		ps.spawn()
 	}
 }
 
-func newParticle(plan spawnlogic.ParticlePlan) Particle {
+func newParticle(plan particlePlan) Particle {
 	fadeTime := 0.24 + rand.Float64()*0.16
 	if fadeTime > plan.Life*0.45 {
 		fadeTime = plan.Life * 0.45
@@ -37,7 +33,7 @@ func newParticle(plan spawnlogic.ParticlePlan) Particle {
 }
 
 func (ps *ParticleSystem) spawn() {
-	plan, ok := spawnlogic.PlanSpawn(ps.spawnState())
+	plan, ok := planSpawn(ps.spawnCfg())
 	if !ok {
 		return
 	}
@@ -45,7 +41,7 @@ func (ps *ParticleSystem) spawn() {
 }
 
 func (ps *ParticleSystem) spawnVisualizerDrops() {
-	for _, plan := range spawnlogic.PlanVisualizerSpawns(ps.spawnState()) {
+	for _, plan := range planVisualizerSpawns(ps.spawnCfg()) {
 		if len(ps.particles) >= ps.maxSize {
 			break
 		}
@@ -54,7 +50,7 @@ func (ps *ParticleSystem) spawnVisualizerDrops() {
 }
 
 func (ps *ParticleSystem) SpawnMessageDrops(startX, row int, message string, hidden []bool) {
-	plans, hiddenIndices := spawnlogic.PlanMessageSpawns(ps.spawnState(), startX, row, message, hidden)
+	plans, hiddenIndices := planMessageSpawns(ps.spawnCfg(), startX, row, message, hidden)
 	for _, idx := range hiddenIndices {
 		if idx < len(hidden) {
 			hidden[idx] = true
@@ -68,8 +64,8 @@ func (ps *ParticleSystem) SpawnMessageDrops(startX, row int, message string, hid
 	}
 }
 
-func (ps *ParticleSystem) spawnState() spawnlogic.State {
-	return spawnlogic.State{
+func (ps *ParticleSystem) spawnCfg() spawnState {
+	return spawnState{
 		Width:         ps.width,
 		Height:        ps.height,
 		MaxSize:       ps.maxSize,

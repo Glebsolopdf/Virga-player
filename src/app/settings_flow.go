@@ -2,7 +2,7 @@ package app
 
 import (
 	"time"
-	"virga-player/animation"
+
 	"virga-player/app/install"
 	"virga-player/app/player"
 	"virga-player/music"
@@ -17,7 +17,6 @@ func (a *App) openSettings() {
 
 func (a *App) closeSettings(save bool, deleteVirga bool) bool {
 	if deleteVirga {
-		a.uninstallInProgress.Store(true)
 		_ = install.RemoveVirgaInstallation()
 		a.state.Message.SetText("Virga removed. Restart your shell or run 'hash -r' to refresh command lookup.", a.width, a.height)
 		a.state.Message.Persistent = true
@@ -42,8 +41,8 @@ func (a *App) closeSettings(save bool, deleteVirga bool) bool {
 }
 
 func (a *App) applyConfig() {
-	a.animEngine.Stop()
-	a.animEngine = animation.NewEngine(a.cfg.FPS)
+	a.animTicker.Stop()
+	a.animTicker = time.NewTicker(time.Second / time.Duration(a.cfg.FPS))
 	a.particleSystem.ApplyConfig(a.cfg)
 	if a.debug != nil {
 		a.debug.SetEnabled(a.cfg.Debug)

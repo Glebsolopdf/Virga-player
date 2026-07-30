@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"virga-player/lyricsearch"
+	"virga-player/lyricsearch/lyricsmanager"
 )
 
 const (
@@ -14,11 +14,11 @@ const (
 	lyricsPromptSecondWindow    = 10 * time.Second
 )
 
-func trackPromptKey(track lyricsearch.Track) string {
+func trackPromptKey(track lyricsmanager.Track) string {
 	return strings.TrimSpace(track.Artist) + "\x00" + strings.TrimSpace(track.Title)
 }
 
-func (a *App) onLyricsSavePrompt(ctx context.Context, request lyricsearch.PromptRequest) bool {
+func (a *App) onLyricsSavePrompt(ctx context.Context, request lyricsmanager.PromptRequest) bool {
 	if a.debug != nil {
 		a.debug.Infof("lyrics prompt: %s", request.Message)
 	}

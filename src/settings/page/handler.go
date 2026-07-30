@@ -2,7 +2,6 @@ package page
 
 import (
 	"virga-player/settings"
-	pagecontrols "virga-player/settings/page/controls"
 
 	"github.com/gdamore/tcell/v2"
 )
@@ -86,14 +85,14 @@ func (p *Page) HandleKey(ev *tcell.EventKey) (exit bool, save bool, deleteVirga 
 func (p *Page) adjust(delta int) {
 	switch p.Section {
 	case sectionGeneral:
-		p.Modified = pagecontrols.General(p.Config, p.Selected, delta) || p.Modified
+		p.Modified = generalAdjust(p.Config, p.Selected, delta) || p.Modified
 	case sectionRain:
-		p.Modified = pagecontrols.Rain(p.Config, p.Selected, delta) || p.Modified
+		p.Modified = rainAdjust(p.Config, p.Selected, delta) || p.Modified
 	case sectionAudio:
-		p.Modified = pagecontrols.Audio(p.Config, p.Selected, delta) || p.Modified
+		p.Modified = audioAdjust(p.Config, p.Selected, delta) || p.Modified
 	case sectionVisual:
-		p.Modified = pagecontrols.Visual(p.Config, p.Selected, delta) || p.Modified
+		p.Modified = visualAdjust(p.Config, p.Selected, delta) || p.Modified
 	case sectionLyrics:
-		p.Modified = pagecontrols.Lyrics(p.Config, p.Selected, delta) || p.Modified
+		p.Modified = lyricsAdjust(p.Config, p.Selected, delta) || p.Modified
 	}
 }

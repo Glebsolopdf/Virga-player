@@ -122,8 +122,8 @@ func (a *Artwork) fillLine(screen tcell.Screen, x, y, width int, background tcel
 	if y < 0 || y >= h || width <= 0 {
 		return
 	}
-	startX := maxInt(0, x)
-	endX := minInt(w, x+width)
+	startX := max(0, x)
+	endX := min(w, x+width)
 	style := tcell.StyleDefault.Background(background).Foreground(background)
 	for posX := startX; posX < endX; posX++ {
 		screen.SetContent(posX, y, ' ', nil, style)

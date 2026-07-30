@@ -23,7 +23,7 @@ func (a *App) handleEvent(event tcell.Event) bool {
 			return false
 		}
 		if ev.Key() == tcell.KeyEscape || ev.Rune() == 'q' {
-			a.animEngine.Stop()
+			a.animTicker.Stop()
 			return true
 		}
 	case *tcell.EventResize:

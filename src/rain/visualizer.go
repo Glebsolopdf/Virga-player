@@ -1,8 +1,8 @@
-package spawnlogic
+package rain
 
 import "math/rand"
 
-func PlanVisualizerSpawns(state State) []ParticlePlan {
+func planVisualizerSpawns(state spawnState) []particlePlan {
 	remaining := state.MaxSize - state.ParticleCount
 	if remaining <= 0 || !state.Enabled {
 		return nil
@@ -19,7 +19,7 @@ func PlanVisualizerSpawns(state State) []ParticlePlan {
 		{state.HighEnergy, state.Width * 2 / 3, state.Width, 22.0, 3},
 	}
 
-	plans := make([]ParticlePlan, 0, remaining)
+	plans := make([]particlePlan, 0, remaining)
 	for idx, section := range sections {
 		if section.energy < 0.08 {
 			continue
@@ -58,7 +58,7 @@ func PlanVisualizerSpawns(state State) []ParticlePlan {
 			props := layerProps(layer)
 			fullVelY := targetVelY + state.HighEnergy*6.0*state.Intensity
 			life := estimateLife(state.Height, startY, fullVelY, props.Delay, state.BaseSpeed, state.LifeMul)
-			plans = append(plans, ParticlePlan{
+			plans = append(plans, particlePlan{
 				X:            x,
 				Y:            startY,
 				TargetVelY:   fullVelY,
@@ -75,14 +75,14 @@ func PlanVisualizerSpawns(state State) []ParticlePlan {
 	return plans
 }
 
-func PlanMessageSpawns(state State, startX, row int, message string, hidden []bool) ([]ParticlePlan, []int) {
+func planMessageSpawns(state spawnState, startX, row int, message string, hidden []bool) ([]particlePlan, []int) {
 	remaining := state.MaxSize - state.ParticleCount
 	if !state.Enabled || remaining <= 0 {
 		return nil, nil
 	}
 
 	messageRunes := []rune(message)
-	plans := make([]ParticlePlan, 0, remaining)
+	plans := make([]particlePlan, 0, remaining)
 	hiddenIndices := make([]int, 0, remaining)
 	for i, ch := range messageRunes {
 		if len(plans) >= remaining {
@@ -99,7 +99,7 @@ func PlanMessageSpawns(state State, startX, row int, message string, hidden []bo
 		props := layerProps(layer)
 		fullVelY := 22.0
 		life := estimateLife(state.Height, float64(row), fullVelY, props.Delay, state.BaseSpeed, state.LifeMul)
-		plans = append(plans, ParticlePlan{
+		plans = append(plans, particlePlan{
 			X:            float64(startX + i),
 			Y:            float64(row),
 			VelX:         velX,

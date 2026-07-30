@@ -1,10 +1,34 @@
 package frame
 
 import (
+	"unicode/utf8"
+
 	"virga-player/settings"
 
 	"github.com/gdamore/tcell/v2"
 )
+
+func drawTextMasked(screen tcell.Screen, x, y int, text string, hidden []bool, fg, bg tcell.Color) {
+	style := tcell.StyleDefault.Foreground(fg).Background(bg)
+	for offset, ch := range []rune(text) {
+		if offset < len(hidden) && hidden[offset] {
+			continue
+		}
+		screen.SetContent(x+offset, y, ch, nil, style)
+	}
+}
+
+func drawTextCentered(screen tcell.Screen, y int, text string, fg, bg tcell.Color) {
+	w, _ := screen.Size()
+	x := (w - utf8.RuneCountInString(text)) / 2
+	if x < 0 {
+		x = 0
+	}
+	style := tcell.StyleDefault.Foreground(fg).Background(bg)
+	for i, ch := range []rune(text) {
+		screen.SetContent(x+i, y, ch, nil, style)
+	}
+}
 
 func (f Frame) Render(dt float64) {
 	theme := settings.CurrentTheme()
@@ -13,7 +37,7 @@ func (f Frame) Render(dt float64) {
 
 	if !f.PlayerEnabled || f.Player == nil {
 		if !f.Message.Converted {
-			f.Renderer.DrawTextMasked(f.Screen, f.Message.X, f.Message.Y, f.Message.Text, f.Message.Hidden, theme.MessageText, theme.Background)
+			drawTextMasked(f.Screen, f.Message.X, f.Message.Y, f.Message.Text, f.Message.Hidden, theme.MessageText, theme.Background)
 		}
 	}
 
@@ -36,7 +60,7 @@ func (f Frame) Render(dt float64) {
 		_, h := f.Screen.Size()
 		if h > 0 {
 			theme := settings.CurrentTheme()
-			f.Renderer.DrawTextCentered(f.Screen, h-1, f.FooterPromptText, theme.SettingsHint, theme.Background)
+			drawTextCentered(f.Screen, h-1, f.FooterPromptText, theme.SettingsHint, theme.Background)
 		}
 	}
 
@@ -62,7 +86,6 @@ func (f Frame) renderStage(mode settings.RainLayerMode) {
 
 func (f Frame) renderPlayerInfo() {
 	p := f.Player
-
 	if p.Artwork != nil {
 		p.Artwork.RenderInfoOnly(f.Screen)
 	}

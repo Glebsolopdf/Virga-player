@@ -76,9 +76,9 @@ func (a *Artwork) computeAverageColor() {
 	}
 	a.mu.Lock()
 	a.AverageColor = color.RGBA{
-		R: uint8(clampFloat(rSum/count, 0, 255)),
-		G: uint8(clampFloat(gSum/count, 0, 255)),
-		B: uint8(clampFloat(bSum/count, 0, 255)),
+		R: uint8(max(0., min(rSum/count, 255.))),
+		G: uint8(max(0., min(gSum/count, 255.))),
+		B: uint8(max(0., min(bSum/count, 255.))),
 		A: 255,
 	}
 	a.mu.Unlock()

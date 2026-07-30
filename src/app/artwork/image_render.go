@@ -87,15 +87,5 @@ func rgbaToTcell(src color.NRGBA, background color.NRGBA, fade, pulse float64) t
 		bf += (1 - bf) * pulse * 0.28
 	}
 
-	return tcell.NewRGBColor(int32(clampFloat(rf*255, 0, 255)), int32(clampFloat(gf*255, 0, 255)), int32(clampFloat(bf*255, 0, 255)))
-}
-
-func clampFloat(v, min, max float64) float64 {
-	if v < min {
-		return min
-	}
-	if v > max {
-		return max
-	}
-	return v
+	return tcell.NewRGBColor(int32(max(0., min(rf*255, 255.))), int32(max(0., min(gf*255, 255.))), int32(max(0., min(bf*255, 255.))))
 }

@@ -1,8 +1,8 @@
-package spawnlogic
+package rain
 
 import "math/rand"
 
-type ParticlePlan struct {
+type particlePlan struct {
 	X            float64
 	Y            float64
 	VelX         float64
@@ -15,16 +15,16 @@ type ParticlePlan struct {
 	MaxOpacity   int
 }
 
-func InitialCount(state State) int {
+func initialCount(state spawnState) int {
 	if !state.Enabled {
 		return 0
 	}
 	return state.MaxSize / 10
 }
 
-func PlanSpawn(state State) (ParticlePlan, bool) {
+func planSpawn(state spawnState) (particlePlan, bool) {
 	if state.ParticleCount >= state.MaxSize || state.Width <= 0 || state.Height <= 0 {
-		return ParticlePlan{}, false
+		return particlePlan{}, false
 	}
 
 	startX := float64(rand.Intn(state.Width))
@@ -51,15 +51,15 @@ func PlanSpawn(state State) (ParticlePlan, bool) {
 
 	layer := chooseLayer(state)
 	props := layerProps(layer)
-	energyLength := int(layerEnergy(state, layer) * state.Intensity * 4.0)
+	energyLength := int(layerEnergy(state.SeparateFreq, layer, state.Pulse, state.LowEnergy, state.MidEnergy, state.HighEnergy) * state.Intensity * 4.0)
 	finalLength := props.MinLength + rand.Intn(props.MaxLength-props.MinLength+1) + energyLength
 	if finalLength > props.MaxLength+3 {
 		finalLength = props.MaxLength + 3
 	}
-	targetVelY := props.MinSpeed + rand.Float64()*(props.MaxSpeed-props.MinSpeed) + layerSpeedEnergy(state, layer)*12.0
+	targetVelY := props.MinSpeed + rand.Float64()*(props.MaxSpeed-props.MinSpeed) + layerSpeedEnergy(state.SeparateFreq, layer, state.Pulse, state.LowEnergy, state.MidEnergy, state.HighEnergy)*12.0
 	life := estimateLife(state.Height, startY, targetVelY, props.Delay, state.BaseSpeed, state.LifeMul)
 
-	return ParticlePlan{
+	return particlePlan{
 		X:            startX,
 		Y:            startY,
 		VelX:         velX,

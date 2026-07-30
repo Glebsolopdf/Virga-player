@@ -11,7 +11,7 @@ func lyricViewport(text string, width int) (string, bool) {
 		return string(runes), true
 	}
 
-	gap := maxInt(width/2, lyricsBasePadding+2)
+	gap := max(width/2, lyricsBasePadding+2)
 	marquee := make([]rune, 0, len(runes)+gap*2)
 	for i := 0; i < gap; i++ {
 		marquee = append(marquee, ' ')

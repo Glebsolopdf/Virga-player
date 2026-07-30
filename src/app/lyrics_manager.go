@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"virga-player/lyricsearch"
+	"virga-player/lyricsearch/lyricsmanager"
 )
 
 func (a *App) resetLyricsManager() {
@@ -22,7 +22,7 @@ func (a *App) resetLyricsManager() {
 		debugf = a.debug.Debugf
 	}
 
-	mgr, err := lyricsearch.NewLyricsManager(lyricsearch.Config{
+	mgr, err := lyricsmanager.NewLyricsManager(lyricsmanager.Config{
 		Mode:          string(a.cfg.LyricsMode),
 		TempDir:       strings.TrimSpace(a.cfg.LyricsTempDir),
 		PersistentDir: strings.TrimSpace(a.cfg.LyricsPersistentDir),

@@ -2,32 +2,44 @@ package page
 
 import (
 	"fmt"
-	"virga-player/renderer"
+	"unicode/utf8"
+
 	"virga-player/settings"
 	"virga-player/version"
 
 	"github.com/gdamore/tcell/v2"
 )
 
-func (p *Page) Render(screen tcell.Screen, renderer *renderer.Renderer, width, height int) {
+func drawTextCentered(screen tcell.Screen, y int, text string, fg, bg tcell.Color) {
+	w, _ := screen.Size()
+	x := (w - utf8.RuneCountInString(text)) / 2
+	if x < 0 {
+		x = 0
+	}
+	style := tcell.StyleDefault.Foreground(fg).Background(bg)
+	for i, ch := range []rune(text) {
+		screen.SetContent(x+i, y, ch, nil, style)
+	}
+}
+
+func (p *Page) Render(screen tcell.Screen, width, height int) {
 	theme := settings.CurrentTheme()
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
-			renderer.DrawRune(x, y, ' ', tcell.ColorReset, theme.Background)
+			screen.SetContent(x, y, ' ', nil, tcell.StyleDefault.Foreground(tcell.ColorReset).Background(theme.Background))
 		}
 	}
 
 	title := "Virga Player Settings"
-	renderer.DrawTextCentered(screen, 2, title, theme.SettingsTitle, theme.Background)
+	drawTextCentered(screen, 2, title, theme.SettingsTitle, theme.Background)
 
 	subtitle := "Use arrows to select a category and Enter to open it"
 	switch p.Section {
 	case sectionNone:
-		// keep default subtitle
 	default:
 		subtitle = "Use Left/Right to change values, Enter to save and exit, Esc to go back"
 	}
-	renderer.DrawTextCentered(screen, 4, subtitle, theme.SettingsHint, theme.Background)
+	drawTextCentered(screen, 4, subtitle, theme.SettingsHint, theme.Background)
 
 	if p.Section == sectionNone {
 		items := p.menuItems()
@@ -42,7 +54,7 @@ func (p *Page) Render(screen tcell.Screen, renderer *renderer.Renderer, width, h
 				fg = theme.SettingsSelectedFg
 				bg = theme.SettingsSelectedBg
 			}
-			renderer.DrawTextCentered(screen, startY+i*2, item.label, fg, bg)
+			drawTextCentered(screen, startY+i*2, item.label, fg, bg)
 		}
 	} else {
 		items := p.sectionMenuItems()
@@ -57,13 +69,13 @@ func (p *Page) Render(screen tcell.Screen, renderer *renderer.Renderer, width, h
 				fg = theme.SettingsSelectedFg
 				bg = theme.SettingsSelectedBg
 			}
-			renderer.DrawTextCentered(screen, startY+i*2, item.label, fg, bg)
+			drawTextCentered(screen, startY+i*2, item.label, fg, bg)
 		}
 	}
 
 	if p.Section == sectionNone {
 		dir := settings.ConfigDirPath()
-		renderer.DrawTextCentered(screen, height-6, fmt.Sprintf("Player directory: %s", dir), theme.SettingsHint, theme.Background)
+		drawTextCentered(screen, height-6, fmt.Sprintf("Player directory: %s", dir), theme.SettingsHint, theme.Background)
 	}
 
 	helpText := "Esc: back/cancel  |  s: save and exit"
@@ -77,7 +89,7 @@ func (p *Page) Render(screen tcell.Screen, renderer *renderer.Renderer, width, h
 	if p.ConfirmDelete {
 		helpText = "Delete Virga confirmation: Enter/Y confirm, Esc/N cancel"
 	}
-	renderer.DrawTextCentered(screen, height-4, helpText, theme.SettingsHint, theme.Background)
+	drawTextCentered(screen, height-4, helpText, theme.SettingsHint, theme.Background)
 	footerText := fmt.Sprintf("%s | %s", version.AppVersion, version.GitHubURL)
-	renderer.DrawTextCentered(screen, height-2, footerText, theme.SettingsHint, theme.Background)
+	drawTextCentered(screen, height-2, footerText, theme.SettingsHint, theme.Background)
 }

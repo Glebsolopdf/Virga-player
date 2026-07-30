@@ -96,10 +96,10 @@ func (a *Analyzer) readLoop(r io.Reader) {
 		high := bandEnergy(win, []float64{2800, 3600, 4400, 5000})
 		env := rms(chunk)
 
-		normEnv := clamp((env-minNormEnvelope)*envSensitivity, 0, 1)
-		nLow := clamp(math.Sqrt(low)*envSensitivity*0.6, 0, 1)
-		nMid := clamp(math.Sqrt(mid)*envSensitivity*0.6, 0, 1)
-		nHigh := clamp(math.Sqrt(high)*envSensitivity*0.6, 0, 1)
+		normEnv := max(0., min((env-minNormEnvelope)*envSensitivity, 1.))
+		nLow := max(0., min(math.Sqrt(low)*envSensitivity*0.6, 1.))
+		nMid := max(0., min(math.Sqrt(mid)*envSensitivity*0.6, 1.))
+		nHigh := max(0., min(math.Sqrt(high)*envSensitivity*0.6, 1.))
 
 		a.mu.Lock()
 		step := func(prev, next float64) float64 {

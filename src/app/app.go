@@ -5,13 +5,11 @@ import (
 	"sync/atomic"
 	"time"
 
-	"virga-player/animation"
 	"virga-player/app/state"
 	"virga-player/audio"
 	debugmgr "virga-player/debug/manager"
-	"virga-player/lyricsearch"
+	"virga-player/lyricsearch/lyricsmanager"
 	"virga-player/rain"
-	"virga-player/renderer"
 	"virga-player/settings"
 	"virga-player/settings/page"
 
@@ -21,8 +19,7 @@ import (
 type App struct {
 	screen         tcell.Screen
 	particleSystem *rain.ParticleSystem
-	animEngine     *animation.Engine
-	renderEngine   *renderer.Renderer
+	animTicker     *time.Ticker
 	state          *state.AppState
 	settingsPage   *page.Page
 	cfg            *settings.Config
@@ -42,7 +39,7 @@ type App struct {
 	lyricsRequestKey string
 	lyricsResultKey  string
 	currentLyrics    string
-	lyricsManager    *lyricsearch.LyricsManager
+	lyricsManager    *lyricsmanager.LyricsManager
 
 	timelineTrackKey      string
 	timelineFallbackFrom  time.Time
@@ -55,7 +52,6 @@ type App struct {
 	lyricsStatusTo time.Time
 
 	lyricsDoubleConfirm atomic.Bool
-	uninstallInProgress atomic.Bool
 }
 
 type lyricsPromptState struct {

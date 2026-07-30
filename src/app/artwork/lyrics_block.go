@@ -52,7 +52,7 @@ func (a *Artwork) drawLyricLine(screen tcell.Screen, centerX, y, maxWidth int, l
 		bandWidth = screenWidth - 2
 	}
 	if bandWidth < 8 {
-		bandWidth = minInt(screenWidth, 8)
+		bandWidth = min(screenWidth, 8)
 	}
 
 	bandX := centerX - bandWidth/2
@@ -66,7 +66,7 @@ func (a *Artwork) drawLyricLine(screen tcell.Screen, centerX, y, maxWidth int, l
 	a.fillLine(screen, bandX, y, bandWidth, currentTheme.LyricsBackground)
 
 	innerPadding := lyricsBasePadding + extraPad
-	maxPadding := maxInt(1, bandWidth/4)
+	maxPadding := max(1, bandWidth/4)
 	if innerPadding > maxPadding {
 		innerPadding = maxPadding
 	}

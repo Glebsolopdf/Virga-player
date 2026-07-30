@@ -1,8 +1,8 @@
-package controls
+package page
 
 import "virga-player/settings"
 
-func PulseModeIndex(cfg *settings.Config) int {
+func pulseModeIndex(cfg *settings.Config) int {
 	options := settings.PulseModeOptions()
 	for i, mode := range options {
 		if mode == cfg.PulseMode {
@@ -12,7 +12,7 @@ func PulseModeIndex(cfg *settings.Config) int {
 	return 0
 }
 
-func DirectionIndex(cfg *settings.Config) int {
+func directionIndex(cfg *settings.Config) int {
 	options := settings.DirectionOptions()
 	for i, mode := range options {
 		if mode == cfg.Direction {
@@ -22,7 +22,7 @@ func DirectionIndex(cfg *settings.Config) int {
 	return 0
 }
 
-func LyricsModeIndex(cfg *settings.Config) int {
+func lyricsModeIndex(cfg *settings.Config) int {
 	options := settings.LyricsModeOptions()
 	for i, mode := range options {
 		if mode == cfg.LyricsMode {
@@ -32,7 +32,7 @@ func LyricsModeIndex(cfg *settings.Config) int {
 	return 0
 }
 
-func RainLayerIndex(current settings.RainLayerMode) int {
+func rainLayerIndex(current settings.RainLayerMode) int {
 	options := settings.RainLayerOptions()
 	for i, mode := range options {
 		if mode == current {

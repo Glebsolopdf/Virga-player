@@ -20,7 +20,7 @@ func lyricDisplayWindow(cues []lyricCue, elapsedSeconds int, currentPulse float6
 
 	current := currentLyricIndex(cues, elapsedMillis)
 	if current < 0 {
-		limit := minInt(len(cues), maxVisibleLyrics)
+		limit := min(len(cues), maxVisibleLyrics)
 		lines := make([]lyricDisplayLine, 0, limit)
 		for i := 0; i < limit; i++ {
 			lines = append(lines, lyricDisplayLine{text: cues[i].text, color: currentTheme.LyricsInactive})
@@ -28,10 +28,10 @@ func lyricDisplayWindow(cues []lyricCue, elapsedSeconds int, currentPulse float6
 		return lines
 	}
 
-	start := maxInt(0, current-1)
-	end := minInt(len(cues), current+2)
+	start := max(0, current-1)
+	end := min(len(cues), current+2)
 	if end-start < maxVisibleLyrics {
-		start = maxInt(0, end-maxVisibleLyrics)
+		start = max(0, end-maxVisibleLyrics)
 	}
 
 	lines := make([]lyricDisplayLine, 0, end-start)

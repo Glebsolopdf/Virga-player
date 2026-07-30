@@ -1,16 +1,16 @@
-package controls
+package page
 
 import "virga-player/settings"
 
-func General(cfg *settings.Config, selected, delta int) bool {
+func generalAdjust(cfg *settings.Config, selected, delta int) bool {
 	switch selected {
 	case 0:
 		prev := cfg.FPS
-		cfg.FPS = clampInt(cfg.FPS+delta*5, 15, 240)
+		cfg.FPS = max(15, min(cfg.FPS+delta*5, 240))
 		return cfg.FPS != prev
 	case 1:
 		prev := cfg.MaxParticles
-		cfg.MaxParticles = clampInt(cfg.MaxParticles+delta*10, 20, 500)
+		cfg.MaxParticles = max(20, min(cfg.MaxParticles+delta*10, 500))
 		return cfg.MaxParticles != prev
 	case 2:
 		prev := cfg.Debug
@@ -20,31 +20,31 @@ func General(cfg *settings.Config, selected, delta int) bool {
 	return false
 }
 
-func Rain(cfg *settings.Config, selected, delta int) bool {
+func rainAdjust(cfg *settings.Config, selected, delta int) bool {
 	switch selected {
 	case 0:
 		prev := cfg.RainSpeed
-		cfg.RainSpeed = clampInt(cfg.RainSpeed+delta*5, 25, 300)
+		cfg.RainSpeed = max(25, min(cfg.RainSpeed+delta*5, 300))
 		return cfg.RainSpeed != prev
 	case 1:
 		prev := cfg.RainLifetime
-		cfg.RainLifetime = clampInt(cfg.RainLifetime+delta*10, 20, 200)
+		cfg.RainLifetime = max(20, min(cfg.RainLifetime+delta*10, 200))
 		return cfg.RainLifetime != prev
 	case 2:
 		prev := cfg.Direction
 		options := settings.DirectionOptions()
-		index := DirectionIndex(cfg)
+		index := directionIndex(cfg)
 		index = (index + delta + len(options)) % len(options)
 		cfg.Direction = options[index]
 		return cfg.Direction != prev
 	case 3:
 		prev := cfg.PulseSpeed
-		cfg.PulseSpeed = clampInt(cfg.PulseSpeed+delta*10, 25, 300)
+		cfg.PulseSpeed = max(25, min(cfg.PulseSpeed+delta*10, 300))
 		return cfg.PulseSpeed != prev
 	case 4:
 		prev := cfg.PulseMode
 		options := settings.PulseModeOptions()
-		index := PulseModeIndex(cfg)
+		index := pulseModeIndex(cfg)
 		index = (index + delta + len(options)) % len(options)
 		cfg.SetPulseMode(options[index])
 		return cfg.PulseMode != prev
@@ -54,13 +54,13 @@ func Rain(cfg *settings.Config, selected, delta int) bool {
 		return cfg.RainEnabled != prev
 	case 6:
 		prev := cfg.RainPulse
-		cfg.RainPulse = clampInt(cfg.RainPulse+delta*10, 20, 200)
+		cfg.RainPulse = max(20, min(cfg.RainPulse+delta*10, 200))
 		return cfg.RainPulse != prev
 	}
 	return false
 }
 
-func Audio(cfg *settings.Config, selected, delta int) bool {
+func audioAdjust(cfg *settings.Config, selected, delta int) bool {
 	switch selected {
 	case 0:
 		prev := cfg.MusicReactive
@@ -68,7 +68,7 @@ func Audio(cfg *settings.Config, selected, delta int) bool {
 		return cfg.MusicReactive != prev
 	case 1:
 		prev := cfg.MusicReactiveIntensity
-		cfg.MusicReactiveIntensity = clampInt(cfg.MusicReactiveIntensity+delta*10, 20, 200)
+		cfg.MusicReactiveIntensity = max(20, min(cfg.MusicReactiveIntensity+delta*10, 200))
 		return cfg.MusicReactiveIntensity != prev
 	case 2:
 		prev := cfg.SeparateFrequencies
@@ -82,7 +82,7 @@ func Audio(cfg *settings.Config, selected, delta int) bool {
 	return false
 }
 
-func Visual(cfg *settings.Config, selected, delta int) bool {
+func visualAdjust(cfg *settings.Config, selected, delta int) bool {
 	switch selected {
 	case 0:
 		prev := cfg.MusicPlayerAnimation
@@ -90,7 +90,7 @@ func Visual(cfg *settings.Config, selected, delta int) bool {
 		return cfg.MusicPlayerAnimation != prev
 	case 1:
 		prev := cfg.MusicPlayerIntensity
-		cfg.MusicPlayerIntensity = clampInt(cfg.MusicPlayerIntensity+delta*10, 20, 200)
+		cfg.MusicPlayerIntensity = max(20, min(cfg.MusicPlayerIntensity+delta*10, 200))
 		return cfg.MusicPlayerIntensity != prev
 	case 2:
 		prev := cfg.MusicPlayerInvert
@@ -99,7 +99,7 @@ func Visual(cfg *settings.Config, selected, delta int) bool {
 	case 3:
 		prev := cfg.PlayerRainLayer
 		options := settings.RainLayerOptions()
-		index := RainLayerIndex(cfg.PlayerRainLayer)
+		index := rainLayerIndex(cfg.PlayerRainLayer)
 		index = (index + delta + len(options)) % len(options)
 		cfg.PlayerRainLayer = options[index]
 		return cfg.PlayerRainLayer != prev
@@ -111,7 +111,7 @@ func Visual(cfg *settings.Config, selected, delta int) bool {
 	return false
 }
 
-func Lyrics(cfg *settings.Config, selected, delta int) bool {
+func lyricsAdjust(cfg *settings.Config, selected, delta int) bool {
 	switch selected {
 	case 0:
 		prev := cfg.LyricsVisible
@@ -120,18 +120,18 @@ func Lyrics(cfg *settings.Config, selected, delta int) bool {
 	case 1:
 		prev := cfg.LyricsMode
 		options := settings.LyricsModeOptions()
-		index := LyricsModeIndex(cfg)
+		index := lyricsModeIndex(cfg)
 		index = (index + delta + len(options)) % len(options)
 		cfg.LyricsMode = options[index]
 		return cfg.LyricsMode != prev
 	case 2:
 		prev := cfg.LyricsAutoSaveAfterSec
-		cfg.LyricsAutoSaveAfterSec = clampInt(cfg.LyricsAutoSaveAfterSec+delta*5, 5, 600)
+		cfg.LyricsAutoSaveAfterSec = max(5, min(cfg.LyricsAutoSaveAfterSec+delta*5, 600))
 		return cfg.LyricsAutoSaveAfterSec != prev
 	case 3:
 		prev := cfg.LyricsRainLayer
 		options := settings.RainLayerOptions()
-		index := RainLayerIndex(cfg.LyricsRainLayer)
+		index := rainLayerIndex(cfg.LyricsRainLayer)
 		index = (index + delta + len(options)) % len(options)
 		cfg.LyricsRainLayer = options[index]
 		return cfg.LyricsRainLayer != prev
@@ -141,14 +141,4 @@ func Lyrics(cfg *settings.Config, selected, delta int) bool {
 		return cfg.LyricsDoubleConfirm != prev
 	}
 	return false
-}
-
-func clampInt(value, minValue, maxValue int) int {
-	if value < minValue {
-		return minValue
-	}
-	if value > maxValue {
-		return maxValue
-	}
-	return value
 }

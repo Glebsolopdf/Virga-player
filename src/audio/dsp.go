@@ -27,12 +27,4 @@ func smooth(prev, next, alpha float64) float64 {
 	return prev + alpha*(next-prev)
 }
 
-func clamp(v, min, max float64) float64 {
-	if v < min {
-		return min
-	}
-	if v > max {
-		return max
-	}
-	return v
-}
+

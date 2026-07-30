@@ -1,21 +1,16 @@
 package music
 
-import (
-	"strings"
-
-	artworklookup "virga-player/music/artworklookup"
-	playerctlcmd "virga-player/music/playerctlcmd"
-)
+import "strings"
 
 func getArtworkURL() string {
 	keys := []string{"mpris:artUrl", "xesam:artUrl", "artUrl", "xesam:artwork", "thumbnail"}
 	for _, key := range keys {
-		if value := playerctlcmd.MetadataValue(key); value != "" {
+		if value := metaValue(key); value != "" {
 			return value
 		}
 	}
 
-	if dump := playerctlcmd.MetadataDump(); dump != "" {
+	if dump := metaDump(); dump != "" {
 		for _, line := range strings.Split(dump, "\n") {
 			lower := strings.ToLower(line)
 			if !strings.Contains(lower, "art") && !strings.Contains(lower, "thumb") && !strings.Contains(lower, "image") {
@@ -34,14 +29,14 @@ func getArtworkURL() string {
 		}
 	}
 
-	trackURL := playerctlcmd.MetadataValue("xesam:url")
+	trackURL := metaValue("xesam:url")
 	if trackURL != "" {
 		if !strings.HasPrefix(trackURL, "http://") && !strings.HasPrefix(trackURL, "https://") {
-			artworklookup.Remember(trackURL, "")
+			artworkRemember(trackURL, "")
 			return ""
 		}
 
-		return artworklookup.Resolve(trackURL)
+		return artworkResolve(trackURL)
 	}
 
 	return ""
@@ -53,9 +48,9 @@ func getArtworkURLFromTrackURL(trackURL string) string {
 	}
 
 	if !strings.HasPrefix(trackURL, "http://") && !strings.HasPrefix(trackURL, "https://") {
-		artworklookup.Remember(trackURL, "")
+		artworkRemember(trackURL, "")
 		return ""
 	}
 
-	return artworklookup.Resolve(trackURL)
+	return artworkResolve(trackURL)
 }

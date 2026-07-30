@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"virga-player/lyricsearch"
+	"virga-player/lyricsearch/lyricsmanager"
 	"virga-player/music"
 	"virga-player/settings"
 )
@@ -57,7 +58,7 @@ func (a *App) processLyricsResults() {
 				a.debug.Debugf("lyrics skipped missing metadata artist=%q track=%q", result.artist, result.track)
 			case errors.Is(result.err, lyricsearch.ErrLyricsDisabled):
 				a.debug.Debugf("lyrics disabled")
-			case errors.Is(result.err, lyricsearch.ErrLyricsManagerClosed):
+			case errors.Is(result.err, lyricsmanager.ErrLyricsManagerClosed):
 				a.debug.Debugf("lyrics manager closed")
 			default:
 				a.debug.Warnf("lyrics lookup failed artist=%q track=%q err=%v", result.artist, result.track, result.err)
@@ -109,8 +110,8 @@ func (a *App) syncLyrics(track *music.TrackInfo) {
 	}
 
 	lyricsMgr := a.lyricsManager
-	go func(requestKey, artist, title string, mgr *lyricsearch.LyricsManager, results chan<- lyricFetchResult) {
-		lyrics, err := mgr.OnTrackStarted(lyricsearch.Track{Artist: artist, Title: title})
+	go func(requestKey, artist, title string, mgr *lyricsmanager.LyricsManager, results chan<- lyricFetchResult) {
+		lyrics, err := mgr.OnTrackStarted(lyricsmanager.Track{Artist: artist, Title: title})
 		results <- lyricFetchResult{
 			requestKey: requestKey,
 			artist:     artist,

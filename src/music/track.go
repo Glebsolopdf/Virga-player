@@ -85,17 +85,8 @@ func (t *TrackInfo) Clone() *TrackInfo {
 	if t == nil {
 		return nil
 	}
-	return &TrackInfo{
-		Title:       t.Title,
-		Artist:      t.Artist,
-		Album:       t.Album,
-		Duration:    t.Duration,
-		Elapsed:     t.Elapsed,
-		Paused:      t.Paused,
-		ArtworkURL:  t.ArtworkURL,
-		ArtworkPath: t.ArtworkPath,
-		Source:      t.Source,
-	}
+	clone := *t
+	return &clone
 }
 
 func normalizeTrackDuration(track *TrackInfo) {

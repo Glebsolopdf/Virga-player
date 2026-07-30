@@ -1,47 +1,44 @@
 package music
 
-import playerctlcmd "virga-player/music/playerctlcmd"
-
 func getPlayerctlTrack() *TrackInfo {
-	if !playerctlcmd.Available() {
+	if !playerctlAvailable() {
 		return nil
 	}
 
-	metadata, ok := playerctlcmd.ReadTrackMetadata()
+	meta, ok := readTrackMeta()
 	if !ok {
 		return getPlayerctlTrackFallback()
 	}
-	artworkURL := metadata.ArtworkURL
+	artworkURL := meta.ArtworkURL
 	if artworkURL == "" {
-		artworkURL = getArtworkURLFromTrackURL(metadata.TrackURL)
+		artworkURL = getArtworkURLFromTrackURL(meta.TrackURL)
 	}
 
 	return &TrackInfo{
-		Title:      metadata.Title,
-		Artist:     metadata.Artist,
-		Album:      metadata.Album,
-		Duration:   metadata.Duration,
-		Elapsed:    playerctlcmd.PositionSeconds(),
-		Paused:     playerctlcmd.IsPaused(),
+		Title:      meta.Title,
+		Artist:     meta.Artist,
+		Album:      meta.Album,
+		Duration:   meta.Duration,
+		Elapsed:    playerctlPosition(),
+		Paused:     playerctlIsPaused(),
 		ArtworkURL: artworkURL,
 		Source:     "playerctl",
 	}
 }
 
 func getPlayerctlTrackFallback() *TrackInfo {
-	title := playerctlcmd.FirstMetadataValue("xesam:title", "title")
+	title := firstMetaValue("xesam:title", "title")
 	if title == "" {
 		return nil
 	}
 
-	artist := playerctlcmd.FirstMetadataValue("xesam:artist", "artist")
-	album := playerctlcmd.FirstMetadataValue("xesam:album", "album")
-
+	artist := firstMetaValue("xesam:artist", "artist")
+	album := firstMetaValue("xesam:album", "album")
 	artworkURL := getArtworkURL()
 
-	duration := playerctlcmd.DurationFromMicros(playerctlcmd.FirstMetadataValue("mpris:length"))
+	duration := durationFromMicros(firstMetaValue("mpris:length"))
 	if duration == 0 {
-		duration = playerctlcmd.DurationFromMicros(playerctlcmd.FirstMetadataValue("xesam:length"))
+		duration = durationFromMicros(firstMetaValue("xesam:length"))
 	}
 
 	return &TrackInfo{
@@ -49,8 +46,8 @@ func getPlayerctlTrackFallback() *TrackInfo {
 		Artist:     artist,
 		Album:      album,
 		Duration:   duration,
-		Elapsed:    playerctlcmd.PositionSeconds(),
-		Paused:     playerctlcmd.IsPaused(),
+		Elapsed:    playerctlPosition(),
+		Paused:     playerctlIsPaused(),
 		ArtworkURL: artworkURL,
 		Source:     "playerctl",
 	}

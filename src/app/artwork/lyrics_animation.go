@@ -29,7 +29,7 @@ func (a *Artwork) drawDotsAnimation(screen tcell.Screen, centerX, y, maxWidth in
 		bandWidth = screenWidth - 2
 	}
 	if bandWidth < 8 {
-		bandWidth = minInt(screenWidth, 8)
+		bandWidth = min(screenWidth, 8)
 	}
 
 	bandX := centerX - bandWidth/2
@@ -41,7 +41,7 @@ func (a *Artwork) drawDotsAnimation(screen tcell.Screen, centerX, y, maxWidth in
 	}
 
 	innerPadding := lyricsBasePadding
-	maxPadding := maxInt(1, bandWidth/4)
+	maxPadding := max(1, bandWidth/4)
 	if innerPadding > maxPadding {
 		innerPadding = maxPadding
 	}

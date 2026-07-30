@@ -1,13 +1,12 @@
 package app
 
 import (
-	"virga-player/animation"
-	"virga-player/app/events"
+	"time"
+
 	"virga-player/app/install"
 	"virga-player/app/state"
 	"virga-player/audio"
 	"virga-player/rain"
-	"virga-player/renderer"
 	"virga-player/settings"
 	"virga-player/settings/page"
 )
@@ -39,27 +38,26 @@ func (a *App) initComponents() {
 	}
 	a.cfg = cfg
 	settings.SetCurrentTheme(theme)
-	aliasesReady := install.EnsureCommandAliases()
 	messageText := defaultStatusMessage
 	nextMessageText := ""
 	if firstRun {
-		messageText = "Welcome to Virga!"
-		if aliasesReady {
+		if install.EnsureCommandAliases() {
 			messageText = "Welcome to Virga! PATH: virga | virgaplayer"
+		} else {
+			messageText = "Welcome to Virga!"
 		}
 		nextMessageText = defaultStatusMessage
 	}
 	a.resetLyricsManager()
 	a.particleSystem = rain.NewParticleSystem(a.width, a.height, a.cfg)
 	a.setupAudioAnalyzer()
-	a.animEngine = animation.NewEngine(a.cfg.FPS)
-	a.renderEngine = renderer.NewRenderer(a.screen)
+	a.animTicker = time.NewTicker(time.Second / time.Duration(a.cfg.FPS))
 	a.state = state.NewAppState(a.width, a.height, messageText, nextMessageText, a.cfg)
 	a.settingsPage = page.NewPage(a.cfg.Clone())
 }
 
 func (a *App) initEvents() {
-	a.eventChan = events.Start(a.screen)
+	a.eventChan = eventChan(a.screen)
 }
 
 func (a *App) setupAudioAnalyzer() {

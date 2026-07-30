@@ -1,20 +1,8 @@
-package spawnlogic
+package rain
 
-import (
-	"math/rand"
+import "math/rand"
 
-	"virga-player/rain/separating_frequencies"
-)
-
-const (
-	layerVeryNear = iota
-	layerNear
-	layerMid
-	layerFar
-	layerVeryFar
-)
-
-type LayerProps struct {
+type layerCfg struct {
 	MinLength int
 	MaxLength int
 	MinSpeed  float64
@@ -24,7 +12,7 @@ type LayerProps struct {
 	Delay     float64
 }
 
-type State struct {
+type spawnState struct {
 	Width         int
 	Height        int
 	MaxSize       int
@@ -42,7 +30,7 @@ type State struct {
 	LifeMul       float64
 }
 
-func chooseLayer(state State) int {
+func chooseLayer(state spawnState) int {
 	if !state.SeparateFreq || !state.MusicOn {
 		r := rand.Float64()
 		if r < 0.4 {
@@ -58,8 +46,6 @@ func chooseLayer(state State) int {
 	weightMid := state.MidEnergy * 1.4
 	weightLow := state.LowEnergy * 2.2
 
-	// Keep a persistent foreground presence in separated mode so near layers
-	// do not disappear when low frequencies dominate.
 	weightVeryNear := 0.20 + weightHigh*0.68 + weightMid*0.18
 	weightNear := 0.28 + weightHigh*0.42 + weightMid*0.36 + weightLow*0.08
 	weightMidLayer := 0.20 + weightMid*0.34 + weightHigh*0.14 + weightLow*0.16
@@ -97,18 +83,18 @@ func chooseLayer(state State) int {
 	return layerVeryFar
 }
 
-func layerProps(layer int) LayerProps {
+func layerProps(layer int) layerCfg {
 	switch layer {
 	case layerVeryNear:
-		return LayerProps{MinLength: 6, MaxLength: 10, MinSpeed: 24.0, MaxSpeed: 30.0, Opacity: 6, GrowTime: 0.12, Delay: 0.04}
+		return layerCfg{MinLength: 6, MaxLength: 10, MinSpeed: 24.0, MaxSpeed: 30.0, Opacity: 6, GrowTime: 0.12, Delay: 0.04}
 	case layerNear:
-		return LayerProps{MinLength: 4, MaxLength: 8, MinSpeed: 20.0, MaxSpeed: 26.0, Opacity: 5, GrowTime: 0.15, Delay: 0.05}
+		return layerCfg{MinLength: 4, MaxLength: 8, MinSpeed: 20.0, MaxSpeed: 26.0, Opacity: 5, GrowTime: 0.15, Delay: 0.05}
 	case layerMid:
-		return LayerProps{MinLength: 3, MaxLength: 6, MinSpeed: 16.0, MaxSpeed: 20.0, Opacity: 4, GrowTime: 0.20, Delay: 0.08}
+		return layerCfg{MinLength: 3, MaxLength: 6, MinSpeed: 16.0, MaxSpeed: 20.0, Opacity: 4, GrowTime: 0.20, Delay: 0.08}
 	case layerFar:
-		return LayerProps{MinLength: 2, MaxLength: 4, MinSpeed: 12.0, MaxSpeed: 16.0, Opacity: 4, GrowTime: 0.26, Delay: 0.10}
+		return layerCfg{MinLength: 2, MaxLength: 4, MinSpeed: 12.0, MaxSpeed: 16.0, Opacity: 4, GrowTime: 0.26, Delay: 0.10}
 	default:
-		return LayerProps{MinLength: 1, MaxLength: 3, MinSpeed: 9.0, MaxSpeed: 13.0, Opacity: 3, GrowTime: 0.32, Delay: 0.15}
+		return layerCfg{MinLength: 1, MaxLength: 3, MinSpeed: 9.0, MaxSpeed: 13.0, Opacity: 3, GrowTime: 0.32, Delay: 0.15}
 	}
 }
 
@@ -126,12 +112,4 @@ func estimateLife(height int, startY, targetVelY, delay, baseSpeed, lifeMul floa
 		life = 0.6 + rand.Float64()*0.4
 	}
 	return life
-}
-
-func layerEnergy(state State, layer int) float64 {
-	return separating_frequencies.LayerEnergy(state.SeparateFreq, layer, state.Pulse, state.LowEnergy, state.MidEnergy, state.HighEnergy)
-}
-
-func layerSpeedEnergy(state State, layer int) float64 {
-	return separating_frequencies.LayerSpeedEnergy(state.SeparateFreq, layer, state.Pulse, state.LowEnergy, state.MidEnergy, state.HighEnergy)
 }

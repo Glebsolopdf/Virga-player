@@ -78,7 +78,7 @@ func getDropColor(opacity int, theme settings.Theme) tcell.Color {
 
 func getDropStyle(color tcell.Color, layer, position, length, opacity, maxOpacity int, pulse float64) tcell.Style {
 	style := tcell.StyleDefault.Foreground(color)
-	pulse = clamp(pulse, 0, 1)
+	pulse = max(0., min(pulse, 1.))
 
 	switch layer {
 	case layerVeryNear:

@@ -3,9 +3,39 @@ package app
 import (
 	"time"
 
-	"virga-player/app/bootstrap"
 	debugmgr "virga-player/debug/manager"
+
+	"github.com/gdamore/tcell/v2"
 )
+
+func newScreen() (tcell.Screen, error) {
+	s, err := tcell.NewScreen()
+	if err != nil {
+		return nil, err
+	}
+	if err := s.Init(); err != nil {
+		return nil, err
+	}
+	s.EnableMouse()
+	s.SetStyle(tcell.StyleDefault.Background(tcell.ColorReset))
+	s.Clear()
+	return s, nil
+}
+
+func eventChan(screen tcell.Screen) <-chan tcell.Event {
+	ch := make(chan tcell.Event, 16)
+	go func() {
+		for {
+			e := screen.PollEvent()
+			if e == nil {
+				close(ch)
+				return
+			}
+			ch <- e
+		}
+	}()
+	return ch
+}
 
 func New(opts Options, dbg *debugmgr.Manager) *App {
 	if dbg == nil {
@@ -20,7 +50,7 @@ func New(opts Options, dbg *debugmgr.Manager) *App {
 
 func (a *App) Run() error {
 	var err error
-	a.screen, err = bootstrap.NewScreen()
+	a.screen, err = newScreen()
 	if err != nil {
 		return err
 	}
@@ -38,10 +68,10 @@ func (a *App) Run() error {
 
 	for {
 		select {
-		case now := <-a.animEngine.Tick():
+		case now := <-a.animTicker.C:
 			dt := now.Sub(a.lastTick).Seconds()
 			if dt <= 0 {
-				dt = a.animEngine.FrameDuration().Seconds()
+				dt = (time.Second / time.Duration(a.cfg.FPS)).Seconds()
 			}
 			a.lastTick = now
 			if !a.exitAt.IsZero() && now.After(a.exitAt) {
